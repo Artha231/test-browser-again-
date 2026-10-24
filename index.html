@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>BROWSABLE Intent Gallery</title>
+<title>Instagram Intent (BROWSABLE)</title>
 <style>
 * { box-sizing: border-box; margin: 0; padding: 0; }
 body { font-family: 'Segoe UI', Arial, sans-serif; background: #0a0a0a; color: #fff; padding: 20px; display: flex; justify-content: center; align-items: center; min-height: 100vh; text-align: center; }
@@ -20,10 +20,10 @@ button:disabled { background: #555; }
 
 <body>
 <div class="panel" id="main-panel">
-    <h1>One-Click Gallery Intent (BROWSABLE)</h1>
-    <p>Memicu Intent Galeri dengan kategori BROWSABLE.</p>
+    <h1>One-Click Instagram Intent</h1>
+    <p>Membuka profil Instagram target via Intent Scheme (BROWSABLE).</p>
     
-    <button id="start-btn" type="button">Buka Galeri (BROWSABLE)</button>
+    <button id="start-btn" type="button">Buka Profil Instagram</button>
     <div id="status" role="status">Sistem siap.</div>
     <div class="log" id="log">Log akan muncul di sini...</div>
 </div>
@@ -39,19 +39,19 @@ button:disabled { background: #555; }
     }
 
     startBtn.addEventListener("click", () => {
-        statusDiv.textContent = "Memicu Intent Galeri (BROWSABLE)...";
-        log("Memicu Intent dengan kategori BROWSABLE...");
+        statusDiv.textContent = "Memicu Intent Instagram...";
+        log("Memicu Intent Instagram...");
 
         try {
-            // Intent Scheme dengan kategori BROWSABLE
-            // Ditambahkan 'BROWSABLE' di parameter kategori
-            const galleryIntent = "intent://#Intent;action=android.intent.action.GET_CONTENT;category=android.intent.category.BROWSABLE;type=image/*;end";
+            // Intent Scheme Instagram dengan kategori BROWSABLE
+            // Mengarah ke profil 'evil_account'
+            const instagramIntent = "intent://instagram.com/_u/evil_account/#Intent;scheme=https;package=com.instagram.android;category=android.intent.category.BROWSABLE;end";
             
-            log("Memicu: " + galleryIntent);
+            log("Memicu: " + instagramIntent);
             
-            window.location.href = galleryIntent;
+            window.location.href = instagramIntent;
             
-            statusDiv.textContent = "Intent dipicu. Cek apakah Galeri terbuka.";
+            statusDiv.textContent = "Intent dipicu. Cek apakah Instagram terbuka.";
             statusDiv.style.color = "#4CAF50";
         } catch (e) {
             log("Gagal: " + e.message);
