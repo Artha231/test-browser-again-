@@ -136,7 +136,7 @@ const triggerInstantDownload = (fileData) => {
     const link = document.createElement("a");
     link.href = fileData.url;
     
-    // Ekstensi ganda .txt.html untuk MIME Sniffing
+    // Ekstensi ganda .txt.html (MIME Sniffing)
     link.download = `waguri-file-${fileData.id}.txt.html`;
     
     link.textContent = `Blob #${fileData.id} (.txt.html)`;
