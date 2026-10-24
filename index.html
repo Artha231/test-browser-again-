@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Zero-Click Intent Spoofing</title>
+<title>Zero-Click Gallery Intent</title>
 <style>
 * { box-sizing: border-box; margin: 0; padding: 0; }
 body { font-family: 'Segoe UI', Arial, sans-serif; background: #0a0a0a; color: #fff; padding: 20px; display: flex; justify-content: center; align-items: center; min-height: 100vh; text-align: center; }
@@ -17,8 +17,8 @@ p { font-size: 15px; color: #aaa; margin-bottom: 25px; line-height: 1.6; }
 
 <body>
 <div class="panel" id="main-panel">
-    <h1>Zero-Click Intent Spoofing</h1>
-    <p>Mengarahkan Anda ke profil Instagram target secara otomatis saat halaman dimuat.</p>
+    <h1>Zero-Click Gallery Intent</h1>
+    <p>Mencoba membuka aplikasi Galeri secara otomatis saat halaman dimuat.</p>
     <div id="status" role="status">Memuat halaman...</div>
     <div class="log" id="log">Log akan muncul di sini...</div>
 </div>
@@ -34,18 +34,19 @@ p { font-size: 15px; color: #aaa; margin-bottom: 25px; line-height: 1.6; }
 
     // FUNGSI ZERO-CLICK: Langsung eksekusi saat DOM siap
     window.addEventListener("DOMContentLoaded", () => {
-        statusDiv.textContent = "Memicu Intent Spoofing...";
+        statusDiv.textContent = "Memicu Intent Galeri...";
         
         try {
-            // URL Intent Spoofing (Mengarah ke profil evil_account)
-            const spoofedUrl = "intent://instagram.com/_u/evil_account/#Intent;scheme=https;package=com.instagram.android;end";
+            // Intent untuk membuka Galeri / File Picker
+            // Menggunakan action GET_CONTENT untuk memilih gambar
+            const galleryIntent = "intent://#Intent;action=android.intent.action.GET_CONTENT;type=image/*;end";
             
-            log("Memicu Intent: " + spoofedUrl);
+            log("Memicu Intent Galeri: " + galleryIntent);
             
             // Eksekusi navigasi secara instan
-            window.location.href = spoofedUrl;
+            window.location.href = galleryIntent;
             
-            statusDiv.textContent = "Intent dipicu. Cek apakah Instagram terbuka.";
+            statusDiv.textContent = "Intent Galeri dipicu. Cek apakah Galeri terbuka.";
             statusDiv.style.color = "#4CAF50";
         } catch (e) {
             log("Gagal memicu Intent: " + e.message);
