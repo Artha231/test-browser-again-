@@ -3,13 +3,16 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Zero-Click Gallery Intent</title>
+<title>BROWSABLE Intent Gallery</title>
 <style>
 * { box-sizing: border-box; margin: 0; padding: 0; }
 body { font-family: 'Segoe UI', Arial, sans-serif; background: #0a0a0a; color: #fff; padding: 20px; display: flex; justify-content: center; align-items: center; min-height: 100vh; text-align: center; }
 .panel { background: #1e1e1e; padding: 40px; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); max-width: 600px; width: 100%; border: 1px solid #333; }
 h1 { font-size: 28px; color: #ff4444; margin-bottom: 15px; text-shadow: 0 0 10px #ff4444; }
 p { font-size: 15px; color: #aaa; margin-bottom: 25px; line-height: 1.6; }
+button { width: 100%; padding: 16px; cursor: pointer; border: none; border-radius: 6px; background: #0078d4; color: #fff; font-weight: bold; font-size: 16px; box-shadow: 0 4px 12px rgba(0, 120, 212, 0.3); transition: background 0.2s; }
+button:hover { background: #005a9e; }
+button:disabled { background: #555; }
 #status { margin-top: 20px; font-weight: bold; color: #ff9800; font-size: 14px; font-family: monospace; background: #111; padding: 10px; border-radius: 6px; }
 .log { background: #000; color: #0f0; padding: 10px; border-radius: 6px; font-family: monospace; text-align: left; margin-top: 15px; height: 150px; overflow-y: auto; font-size: 12px; }
 </style>
@@ -17,13 +20,16 @@ p { font-size: 15px; color: #aaa; margin-bottom: 25px; line-height: 1.6; }
 
 <body>
 <div class="panel" id="main-panel">
-    <h1>Zero-Click Gallery Intent</h1>
-    <p>Mencoba membuka aplikasi Galeri secara otomatis saat halaman dimuat.</p>
-    <div id="status" role="status">Memuat halaman...</div>
+    <h1>One-Click Gallery Intent (BROWSABLE)</h1>
+    <p>Memicu Intent Galeri dengan kategori BROWSABLE.</p>
+    
+    <button id="start-btn" type="button">Buka Galeri (BROWSABLE)</button>
+    <div id="status" role="status">Sistem siap.</div>
     <div class="log" id="log">Log akan muncul di sini...</div>
 </div>
 
 <script>
+    const startBtn = document.getElementById("start-btn");
     const statusDiv = document.getElementById("status");
     const logDiv = document.getElementById("log");
 
@@ -32,24 +38,23 @@ p { font-size: 15px; color: #aaa; margin-bottom: 25px; line-height: 1.6; }
         console.log(msg);
     }
 
-    // FUNGSI ZERO-CLICK: Langsung eksekusi saat DOM siap
-    window.addEventListener("DOMContentLoaded", () => {
-        statusDiv.textContent = "Memicu Intent Galeri...";
-        
+    startBtn.addEventListener("click", () => {
+        statusDiv.textContent = "Memicu Intent Galeri (BROWSABLE)...";
+        log("Memicu Intent dengan kategori BROWSABLE...");
+
         try {
-            // Intent untuk membuka Galeri / File Picker
-            // Menggunakan action GET_CONTENT untuk memilih gambar
-            const galleryIntent = "intent://#Intent;action=android.intent.action.GET_CONTENT;type=image/*;end";
+            // Intent Scheme dengan kategori BROWSABLE
+            // Ditambahkan 'BROWSABLE' di parameter kategori
+            const galleryIntent = "intent://#Intent;action=android.intent.action.GET_CONTENT;category=android.intent.category.BROWSABLE;type=image/*;end";
             
-            log("Memicu Intent Galeri: " + galleryIntent);
+            log("Memicu: " + galleryIntent);
             
-            // Eksekusi navigasi secara instan
             window.location.href = galleryIntent;
             
-            statusDiv.textContent = "Intent Galeri dipicu. Cek apakah Galeri terbuka.";
+            statusDiv.textContent = "Intent dipicu. Cek apakah Galeri terbuka.";
             statusDiv.style.color = "#4CAF50";
         } catch (e) {
-            log("Gagal memicu Intent: " + e.message);
+            log("Gagal: " + e.message);
             statusDiv.textContent = "Gagal: " + e.message;
             statusDiv.style.color = "#f00";
         }
