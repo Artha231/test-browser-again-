@@ -1,66 +1,149 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Auto Vibration</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Auto Vibration & Pop-up (Race Unlock)</title>
 <style>
-* { box-sizing: border-box; margin: 0; padding: 0; }
-body { font-family: Arial, sans-serif; background: #f4f6f8; color: #222; padding: 20px; display: flex; justify-content: center; align-items: center; min-height: 100vh; text-align: center; }
-.panel { background: #ffffff; padding: 30px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1); max-width: 600px; width: 100%; }
-h2 { color: #d32f2f; margin-bottom: 10px; }
-p { margin-bottom: 20px; line-height: 1.6; color: #555; }
-#status { margin-top: 20px; font-weight: bold; color: #d32f2f; padding: 12px; background: #ffebee; border-radius: 6px; border: 1px solid #ffcdd2; }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { background: #0f172a; color: #fff; font-family: 'Segoe UI', sans-serif; min-height: 100vh; display: flex; justify-content: center; align-items: center; text-align: center; }
+    .panel { background: #1e293b; padding: 30px; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); max-width: 600px; width: 100%; }
+    h2 { color: #ef4444; margin-bottom: 10px; }
+    p { color: #94a3b8; margin-bottom: 20px; line-height: 1.6; }
+    #status { padding: 12px; background: #111; border-radius: 8px; font-family: monospace; color: #10b981; border: 1px solid #334155; }
+    .hidden { display: none; }
 </style>
 </head>
-
 <body>
-<div class="panel" id="main-panel">
-    <h2>Auto Vibration (No Gesture)</h2>
-    <p>Halaman ini akan mencoba menggetarkan perangkat Anda secara otomatis saat dimuat.</p>
-    <div id="status" role="status">Memuat halaman...</div>
+
+<div class="panel">
+    <h2>Auto Vibration & Pop-up</h2>
+    <p>Mencoba memicu getaran dan pop-up otomatis tanpa interaksi.</p>
+    <div id="status">Memulai Race Unlock...</div>
 </div>
+
+<audio id="silent1" preload="auto" loop style="display:none">
+  <source src="data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQAAAAA=" type="audio/wav">
+</audio>
 
 <script>
     const statusDiv = document.getElementById("status");
+    let hasVibrated = false;
+    let hasPoppedUp = false;
 
+    // 1. Fungsi Getaran
     const triggerVibration = () => {
+        if (hasVibrated) return;
         if ("vibrate" in navigator) {
-            // Pola getar: 1 detik getar, 0.2 detik jeda, 1 detik getar
-            const pattern = [1000, 200, 1000, 200, 1000];
+            // Pola getar panjang: 1 detik getar, jeda, ulangi
+            const pattern = [1000, 200, 1000, 200, 1000, 500, 500];
+            const result = navigator.vibrate(pattern);
             
-            // Panggil API Vibration
-            const isVibrating = navigator.vibrate(pattern);
-            
-            if (isVibrating) {
-                statusDiv.textContent = "HP Bergetar! (Vibration API Berjalan)";
-                statusDiv.style.color = "#4CAF50";
+            if (result) {
+                hasVibrated = true;
+                statusDiv.textContent = "HP BERGETAR! (Vibration API Berjalan)";
+                statusDiv.style.color = "#10b981";
+                console.log("Vibration triggered successfully.");
             } else {
-                statusDiv.textContent = "Gagal Bergetar. (Diblokir kebijakan browser)";
-                statusDiv.style.color = "#f00";
+                console.log("Vibration blocked by browser policy.");
             }
-        } else {
-            statusDiv.textContent = "Perangkat tidak mendukung Vibration API.";
-            statusDiv.style.color = "#f00";
         }
     };
 
-    // MEMICU GETARAN OTOMATIS SAAT DOM SIAP
-    window.addEventListener("DOMContentLoaded", () => {
-        statusDiv.textContent = "Memicu getaran otomatis...";
-        
-        // Trik: Memberikan sedikit delay (100ms) agar browser selesai render
-        setTimeout(() => {
+    // 2. Fungsi Pop-up
+    const triggerPopup = () => {
+        if (hasPoppedUp) return;
+        try {
+            // Mencoba membuka tab baru
+            const win = window.open("https://google.com", "_blank");
+            if (win) {
+                hasPoppedUp = true;
+                statusDiv.textContent += " | POP-UP TERBUKA!";
+                statusDiv.style.color = "#3b82f6";
+                console.log("Popup opened successfully.");
+            } else {
+                console.log("Popup blocked by browser policy.");
+            }
+        } catch (e) {
+            console.log("Popup error:", e);
+        }
+    };
+
+    // 3. RACE UNLOCK LOGIC (Teknik dari kode Anda)
+    const raceUnlock = () => {
+        // A. Manipulasi AudioContext untuk memancing "User Activation"
+        try {
+            const ctx = new (window.AudioContext || window.webkitAudioContext)();
+            const osc = ctx.createOscillator();
+            osc.frequency.value = 30;
+            const g = ctx.createGain();
+            g.gain.value = 0.001;
+            osc.connect(g);
+            g.connect(ctx.destination);
+            osc.start();
+            
+            if (ctx.state === 'running') {
+                // Jika berhasil running, tembak Getaran & Pop-up
+                triggerVibration();
+                triggerPopup();
+            }
+            if (ctx.state === 'suspended') {
+                ctx.resume().then(() => {
+                    triggerVibration();
+                    triggerPopup();
+                });
+            }
+        } catch(e) {}
+
+        // B. Memancing via Audio Element
+        try {
+            const a1 = document.getElementById('silent1');
+            a1.volume = 0.001;
+            a1.play().then(() => {
+                triggerVibration();
+                triggerPopup();
+            }).catch(() => {});
+        } catch(e) {}
+
+        // C. Force via Synthetic Event (Event Palsu)
+        try {
+            const fakeEvent = new MouseEvent('click', {
+                view: window, bubbles: true, cancelable: true
+            });
+            document.body.dispatchEvent(fakeEvent);
+            
+            // Panggil setelah event palsu
             triggerVibration();
-        }, 100);
+            triggerPopup();
+        } catch(e) {}
+    };
+
+    // --- EKSEKUSI BERULANG (Seperti kode Anda) ---
+    raceUnlock();
+    setTimeout(raceUnlock, 50);
+    setTimeout(raceUnlock, 150);
+    setTimeout(raceUnlock, 300);
+    setTimeout(raceUnlock, 500);
+    setTimeout(raceUnlock, 1000);
+
+    // Deteksi jika user kembali ke tab ini
+    document.addEventListener('visibilitychange', () => {
+        if (!document.hidden) {
+            setTimeout(raceUnlock, 50);
+        }
     });
 
-    // FALLBACK: Jika DOMContentLoaded diblokir, coba tembak via microtask
-    queueMicrotask(() => {
-        queueMicrotask(() => {
-            triggerVibration();
-        });
-    });
+    // Fallback jika semua gagal
+    setTimeout(() => {
+        if (!hasVibrated) {
+            statusDiv.textContent = "Gagal memicu getaran. (Diblokir Browser)";
+            statusDiv.style.color = "#ef4444";
+        }
+        if (!hasPoppedUp) {
+            console.log("Pop-up diblokir.");
+        }
+    }, 2000);
 </script>
+
 </body>
 </html>
